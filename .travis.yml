@@ -1,0 +1,9 @@
+os: linux
+dist: bionic
+
+language: rust
+rust:
+  - stable
+
+before_install:
+  - sudo apt-get -y install linux-headers-generic zlib1g-dev libelf-dev llvm
