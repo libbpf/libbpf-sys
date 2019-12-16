@@ -44,7 +44,7 @@ ENTRYPOINT \
 		-- \
 		-I$(pwd)/libbpf/include \
 		-I$(pwd)/libbpf/include/uapi; \
-	cargo build --release;
+	cargo build --release --verbose;
 EOF
 
 docker run --rm -v "$(pwd):/usr/local/src/libbpf-sys" libbpf-sys-builder
