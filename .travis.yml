@@ -6,4 +6,4 @@ rust:
   - stable
 
 before_install:
-  - sudo apt-get -y install linux-headers-generic zlib1g-dev libelf-dev llvm
+  - sudo apt-get -y install curl build-essential linux-headers-generic zlib1g-dev libelf-dev libclang-dev llvm clang
