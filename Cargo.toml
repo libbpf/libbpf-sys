@@ -15,5 +15,8 @@ build = "build.rs"
 travis-ci = { repository = "alexforster/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
+[build-dependencies]
+cc = "^1.0"
+
 [lib]
 crate-type = ["lib", "staticlib"]
