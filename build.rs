@@ -29,6 +29,12 @@ fn main() {
 
         assert!(status.success());
 
+        cc::Build::new()
+            .file("bindings.c")
+            .include(src_dir.join("libbpf/include"))
+            .include(src_dir.join("libbpf/include/uapi"))
+            .compile("bindings");
+
         println!("cargo:rustc-link-search=native={}", out_dir.to_str().unwrap());
         println!("cargo:rustc-link-lib=elf");
         println!("cargo:rustc-link-lib=static=bpf");

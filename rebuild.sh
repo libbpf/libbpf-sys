@@ -1,8 +1,10 @@
 #!/bin/bash
 
+DOCKER="docker"
+
 set -eu -o pipefail
 
-docker build -t libbpf-sys-builder - <<'EOF'
+${DOCKER} build -t libbpf-sys-builder - <<'EOF'
 FROM amd64/ubuntu:bionic AS libbpf-sys-builder
 
 ENV LANG=C.UTF-8
@@ -15,7 +17,7 @@ SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
 RUN \
 	DEBIAN_FRONTEND=noninteractive apt-get -q update; \
-	DEBIAN_FRONTEND=noninteractive apt-get -q install -y curl build-essential linux-headers-generic zlib1g-dev libelf-dev libclang-dev llvm clang; \
+	DEBIAN_FRONTEND=noninteractive apt-get -q install -y curl build-essential linux-headers-generic zlib1g-dev libelf-dev libclang-dev llvm clang pkg-config; \
 	DEBIAN_FRONTEND=noninteractive apt-get -q clean autoclean;
 
 RUN \
@@ -27,14 +29,20 @@ ENTRYPOINT \
 	source $HOME/.cargo/env; \
 	bindgen \
 		--verbose \
+		--with-derive-default \
 		--whitelist-function "bpf_.+" \
 		--whitelist-function "btf_.+" \
 		--whitelist-function "libbpf_.+" \
 		--whitelist-function "xsk_.+" \
+		--whitelist-function "_xsk_.+" \
+		--whitelist-function "xdp_.+" \
 		--whitelist-function "perf_buffer_.+" \
+		--whitelist-type "xdp_.*" \
+		--whitelist-type "xsk_.*" \
 		--whitelist-var "BPF_.+" \
 		--whitelist-var "BTF_.+" \
 		--whitelist-var "XSK_.+" \
+		--whitelist-var "XDP_.+" \
 		--default-enum-style consts \
 		--no-prepend-enum-name \
 		--no-layout-tests \
@@ -47,4 +55,4 @@ ENTRYPOINT \
 	cargo build --release --verbose;
 EOF
 
-docker run --rm -v "$(pwd):/usr/local/src/libbpf-sys" libbpf-sys-builder
+${DOCKER} run --rm -v "$(pwd):/usr/local/src/libbpf-sys" libbpf-sys-builder
