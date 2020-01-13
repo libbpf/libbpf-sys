@@ -15,6 +15,7 @@ fn main() {
             .env("PREFIX", "/")
             .env("LIBDIR", "")
             .env("DESTDIR", out_dir.as_os_str())
+            .env("CFLAGS", "-g -O2 -Werror -Wall -fPIC")
             .current_dir(src_dir.join("libbpf/src"))
             .status()
             .unwrap();
