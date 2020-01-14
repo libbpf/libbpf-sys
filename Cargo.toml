@@ -20,3 +20,6 @@ cc = "^1.0"
 
 [lib]
 crate-type = ["lib", "staticlib"]
+
+[package.metadata.docs.rs]
+dependencies = ["build-essential", "linux-headers-generic", "zlib1g-dev", "libelf-dev", "libclang-dev", "llvm", "clang"]
