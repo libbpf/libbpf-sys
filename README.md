@@ -5,7 +5,7 @@ Rust bindings to libbpf from the Linux kernel
 **Author:** Alex Forster \<alex@alexforster.com\><br/>
 **License:** `BSD-2-Clause`
 
-[![Build Status](https://travis-ci.org/alexforster/libbpf-sys.svg?branch=master)](https://travis-ci.org/alexforster/libbpf-sys) [![docs.rs](https://docs.rs/libbpf-sys/badge.svg)](https://docs.rs/crate/libbpf-sys)
+[![Build Status](https://travis-ci.org/alexforster/libbpf-sys.svg?branch=master)](https://travis-ci.org/alexforster/libbpf-sys)
 
 ### Attributions
 
