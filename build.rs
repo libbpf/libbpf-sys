@@ -15,6 +15,7 @@ fn main() {
             .env("BUILD_STATIC_ONLY", "y")
             .env("PREFIX", "/")
             .env("LIBDIR", "")
+            .env("OBJDIR", out_dir.join("obj").to_str().unwrap())
             .env("DESTDIR", out_dir_str)
             .env("CFLAGS", "-g -O2 -Werror -Wall -fPIC")
             .current_dir(src_dir.join("libbpf/src"))
