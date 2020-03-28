@@ -2970,6 +2970,40 @@ extern "C" {
 extern "C" {
     pub fn xsk_socket__delete(xsk: *mut xsk_socket);
 }
+extern "C" {
+    pub fn _xsk_ring_prod__fill_addr(fill: *mut xsk_ring_prod, idx: __u32) -> *mut __u64;
+}
+extern "C" {
+    pub fn _xsk_ring_cons__comp_addr(comp: *const xsk_ring_cons, idx: __u32) -> *const __u64;
+}
+extern "C" {
+    pub fn _xsk_ring_cons__peek(cons: *mut xsk_ring_cons, nb: size_t, idx: *mut __u32) -> size_t;
+}
+extern "C" {
+    pub fn _xsk_ring_cons__release(cons: *mut xsk_ring_cons, nb: size_t);
+}
+extern "C" {
+    pub fn _xsk_ring_prod__reserve(prod: *mut xsk_ring_prod, nb: size_t, idx: *mut __u32)
+        -> size_t;
+}
+extern "C" {
+    pub fn _xsk_ring_prod__submit(prod: *mut xsk_ring_prod, nb: size_t);
+}
+extern "C" {
+    pub fn _xsk_ring_cons__rx_desc(rx: *const xsk_ring_cons, idx: __u32) -> *const xdp_desc;
+}
+extern "C" {
+    pub fn _xsk_ring_prod__tx_desc(tx: *mut xsk_ring_prod, idx: __u32) -> *mut xdp_desc;
+}
+extern "C" {
+    pub fn _xsk_umem__get_data(
+        umem_area: *mut ::std::os::raw::c_void,
+        addr: __u64,
+    ) -> *mut ::std::os::raw::c_void;
+}
+extern "C" {
+    pub fn _xsk_ring_prod__needs_wakeup(r: *const xsk_ring_prod) -> ::std::os::raw::c_int;
+}
 pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

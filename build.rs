@@ -56,6 +56,7 @@ fn _create_binding(name: &str) {
         .whitelist_function("btf_.+")
         .whitelist_function("libbpf_.+")
         .whitelist_function("xsk_.+")
+        .whitelist_function("_xsk_.+")
         .whitelist_function("xdp_.+")
         .whitelist_function("perf_buffer_.+")
         .whitelist_type("xdp_.+")
