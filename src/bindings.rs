@@ -175,6 +175,7 @@ pub const BPF_CALL: u32 = 128;
 pub const BPF_EXIT: u32 = 144;
 pub const BPF_F_ALLOW_OVERRIDE: u32 = 1;
 pub const BPF_F_ALLOW_MULTI: u32 = 2;
+pub const BPF_F_REPLACE: u32 = 4;
 pub const BPF_F_STRICT_ALIGNMENT: u32 = 1;
 pub const BPF_F_ANY_ALIGNMENT: u32 = 2;
 pub const BPF_F_TEST_RND_HI32: u32 = 4;
@@ -249,8 +250,8 @@ pub const BPF_FLOW_DISSECTOR_F_STOP_AT_ENCAP: u32 = 4;
 pub const BPF_LOG_BUF_SIZE: u32 = 16777215;
 pub const BTF_MAGIC: u32 = 60319;
 pub const BTF_VERSION: u32 = 1;
-pub const BTF_MAX_TYPE: u32 = 65535;
-pub const BTF_MAX_NAME_OFFSET: u32 = 65535;
+pub const BTF_MAX_TYPE: u32 = 1048575;
+pub const BTF_MAX_NAME_OFFSET: u32 = 16777215;
 pub const BTF_MAX_VLEN: u32 = 65535;
 pub const BTF_KIND_UNKN: u32 = 0;
 pub const BTF_KIND_INT: u32 = 1;
@@ -313,12 +314,6 @@ pub type __s64 = ::std::os::raw::c_longlong;
 pub type __u64 = ::std::os::raw::c_ulonglong;
 pub type __be16 = __u16;
 pub type __be32 = __u32;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct nlattr {
-    pub nla_len: __u16,
-    pub nla_type: __u16,
-}
 pub const XDP_ATTACHED_NONE: _bindgen_ty_39 = 0;
 pub const XDP_ATTACHED_DRV: _bindgen_ty_39 = 1;
 pub const XDP_ATTACHED_SKB: _bindgen_ty_39 = 2;
@@ -420,6 +415,10 @@ pub const BPF_TASK_FD_QUERY: bpf_cmd = 20;
 pub const BPF_MAP_LOOKUP_AND_DELETE_ELEM: bpf_cmd = 21;
 pub const BPF_MAP_FREEZE: bpf_cmd = 22;
 pub const BPF_BTF_GET_NEXT_ID: bpf_cmd = 23;
+pub const BPF_MAP_LOOKUP_BATCH: bpf_cmd = 24;
+pub const BPF_MAP_LOOKUP_AND_DELETE_BATCH: bpf_cmd = 25;
+pub const BPF_MAP_UPDATE_BATCH: bpf_cmd = 26;
+pub const BPF_MAP_DELETE_BATCH: bpf_cmd = 27;
 pub type bpf_cmd = u32;
 pub const BPF_MAP_TYPE_UNSPEC: bpf_map_type = 0;
 pub const BPF_MAP_TYPE_HASH: bpf_map_type = 1;
@@ -447,6 +446,7 @@ pub const BPF_MAP_TYPE_QUEUE: bpf_map_type = 22;
 pub const BPF_MAP_TYPE_STACK: bpf_map_type = 23;
 pub const BPF_MAP_TYPE_SK_STORAGE: bpf_map_type = 24;
 pub const BPF_MAP_TYPE_DEVMAP_HASH: bpf_map_type = 25;
+pub const BPF_MAP_TYPE_STRUCT_OPS: bpf_map_type = 26;
 pub type bpf_map_type = u32;
 pub const BPF_PROG_TYPE_UNSPEC: bpf_prog_type = 0;
 pub const BPF_PROG_TYPE_SOCKET_FILTER: bpf_prog_type = 1;
@@ -475,6 +475,8 @@ pub const BPF_PROG_TYPE_CGROUP_SYSCTL: bpf_prog_type = 23;
 pub const BPF_PROG_TYPE_RAW_TRACEPOINT_WRITABLE: bpf_prog_type = 24;
 pub const BPF_PROG_TYPE_CGROUP_SOCKOPT: bpf_prog_type = 25;
 pub const BPF_PROG_TYPE_TRACING: bpf_prog_type = 26;
+pub const BPF_PROG_TYPE_STRUCT_OPS: bpf_prog_type = 27;
+pub const BPF_PROG_TYPE_EXT: bpf_prog_type = 28;
 pub type bpf_prog_type = u32;
 pub const BPF_CGROUP_INET_INGRESS: bpf_attach_type = 0;
 pub const BPF_CGROUP_INET_EGRESS: bpf_attach_type = 1;
@@ -537,16 +539,17 @@ impl Default for bpf_stack_build_id {
 pub union bpf_attr {
     pub __bindgen_anon_1: bpf_attr__bindgen_ty_1,
     pub __bindgen_anon_2: bpf_attr__bindgen_ty_2,
-    pub __bindgen_anon_3: bpf_attr__bindgen_ty_3,
-    pub __bindgen_anon_4: bpf_attr__bindgen_ty_4,
-    pub __bindgen_anon_5: bpf_attr__bindgen_ty_5,
-    pub test: bpf_attr__bindgen_ty_6,
-    pub __bindgen_anon_6: bpf_attr__bindgen_ty_7,
-    pub info: bpf_attr__bindgen_ty_8,
-    pub query: bpf_attr__bindgen_ty_9,
-    pub raw_tracepoint: bpf_attr__bindgen_ty_10,
-    pub __bindgen_anon_7: bpf_attr__bindgen_ty_11,
-    pub task_fd_query: bpf_attr__bindgen_ty_12,
+    pub batch: bpf_attr__bindgen_ty_3,
+    pub __bindgen_anon_3: bpf_attr__bindgen_ty_4,
+    pub __bindgen_anon_4: bpf_attr__bindgen_ty_5,
+    pub __bindgen_anon_5: bpf_attr__bindgen_ty_6,
+    pub test: bpf_attr__bindgen_ty_7,
+    pub __bindgen_anon_6: bpf_attr__bindgen_ty_8,
+    pub info: bpf_attr__bindgen_ty_9,
+    pub query: bpf_attr__bindgen_ty_10,
+    pub raw_tracepoint: bpf_attr__bindgen_ty_11,
+    pub __bindgen_anon_7: bpf_attr__bindgen_ty_12,
+    pub task_fd_query: bpf_attr__bindgen_ty_13,
     _bindgen_union_align: [u64; 15usize],
 }
 #[repr(C)]
@@ -564,6 +567,7 @@ pub struct bpf_attr__bindgen_ty_1 {
     pub btf_fd: __u32,
     pub btf_key_type_id: __u32,
     pub btf_value_type_id: __u32,
+    pub btf_vmlinux_value_type_id: __u32,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -593,6 +597,18 @@ impl Default for bpf_attr__bindgen_ty_2 {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_attr__bindgen_ty_3 {
+    pub in_batch: __u64,
+    pub out_batch: __u64,
+    pub keys: __u64,
+    pub values: __u64,
+    pub count: __u32,
+    pub map_fd: __u32,
+    pub elem_flags: __u64,
+    pub flags: __u64,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_attr__bindgen_ty_4 {
     pub prog_type: __u32,
     pub insn_cnt: __u32,
     pub insns: __u64,
@@ -617,22 +633,23 @@ pub struct bpf_attr__bindgen_ty_3 {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_4 {
+pub struct bpf_attr__bindgen_ty_5 {
     pub pathname: __u64,
     pub bpf_fd: __u32,
     pub file_flags: __u32,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_5 {
+pub struct bpf_attr__bindgen_ty_6 {
     pub target_fd: __u32,
     pub attach_bpf_fd: __u32,
     pub attach_type: __u32,
     pub attach_flags: __u32,
+    pub replace_bpf_fd: __u32,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_6 {
+pub struct bpf_attr__bindgen_ty_7 {
     pub prog_fd: __u32,
     pub retval: __u32,
     pub data_size_in: __u32,
@@ -648,40 +665,40 @@ pub struct bpf_attr__bindgen_ty_6 {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_7 {
-    pub __bindgen_anon_1: bpf_attr__bindgen_ty_7__bindgen_ty_1,
+pub struct bpf_attr__bindgen_ty_8 {
+    pub __bindgen_anon_1: bpf_attr__bindgen_ty_8__bindgen_ty_1,
     pub next_id: __u32,
     pub open_flags: __u32,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub union bpf_attr__bindgen_ty_7__bindgen_ty_1 {
+pub union bpf_attr__bindgen_ty_8__bindgen_ty_1 {
     pub start_id: __u32,
     pub prog_id: __u32,
     pub map_id: __u32,
     pub btf_id: __u32,
     _bindgen_union_align: u32,
 }
-impl Default for bpf_attr__bindgen_ty_7__bindgen_ty_1 {
+impl Default for bpf_attr__bindgen_ty_8__bindgen_ty_1 {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
 }
-impl Default for bpf_attr__bindgen_ty_7 {
+impl Default for bpf_attr__bindgen_ty_8 {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_8 {
+pub struct bpf_attr__bindgen_ty_9 {
     pub bpf_fd: __u32,
     pub info_len: __u32,
     pub info: __u64,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_9 {
+pub struct bpf_attr__bindgen_ty_10 {
     pub target_fd: __u32,
     pub attach_type: __u32,
     pub query_flags: __u32,
@@ -691,13 +708,13 @@ pub struct bpf_attr__bindgen_ty_9 {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_10 {
+pub struct bpf_attr__bindgen_ty_11 {
     pub name: __u64,
     pub prog_fd: __u32,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_11 {
+pub struct bpf_attr__bindgen_ty_12 {
     pub btf: __u64,
     pub btf_log_buf: __u64,
     pub btf_size: __u32,
@@ -706,7 +723,7 @@ pub struct bpf_attr__bindgen_ty_11 {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct bpf_attr__bindgen_ty_12 {
+pub struct bpf_attr__bindgen_ty_13 {
     pub pid: __u32,
     pub fd: __u32,
     pub flags: __u32,
@@ -838,7 +855,10 @@ pub const BPF_FUNC_probe_read_user: bpf_func_id = 112;
 pub const BPF_FUNC_probe_read_kernel: bpf_func_id = 113;
 pub const BPF_FUNC_probe_read_user_str: bpf_func_id = 114;
 pub const BPF_FUNC_probe_read_kernel_str: bpf_func_id = 115;
-pub const __BPF_FUNC_MAX_ID: bpf_func_id = 116;
+pub const BPF_FUNC_tcp_send_ack: bpf_func_id = 116;
+pub const BPF_FUNC_send_signal_thread: bpf_func_id = 117;
+pub const BPF_FUNC_jiffies64: bpf_func_id = 118;
+pub const __BPF_FUNC_MAX_ID: bpf_func_id = 119;
 pub type bpf_func_id = u32;
 pub const BPF_ADJ_ROOM_NET: bpf_adj_room_mode = 0;
 pub const BPF_ADJ_ROOM_MAC: bpf_adj_room_mode = 1;
@@ -1085,20 +1105,12 @@ pub struct bpf_map_info {
     pub map_flags: __u32,
     pub name: [::std::os::raw::c_char; 16usize],
     pub ifindex: __u32,
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize], u8>,
+    pub btf_vmlinux_value_type_id: __u32,
     pub netns_dev: __u64,
     pub netns_ino: __u64,
     pub btf_id: __u32,
     pub btf_key_type_id: __u32,
     pub btf_value_type_id: __u32,
-}
-impl bpf_map_info {
-    #[inline]
-    pub fn new_bitfield_1() -> __BindgenBitfieldUnit<[u8; 4usize], u8> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize], u8> =
-            Default::default();
-        __bindgen_bitfield_unit
-    }
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1495,7 +1507,7 @@ impl Default for bpf_sockopt {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct bpf_create_map_attr {
     pub name: *const ::std::os::raw::c_char,
     pub map_type: bpf_map_type,
@@ -1508,7 +1520,19 @@ pub struct bpf_create_map_attr {
     pub btf_key_type_id: __u32,
     pub btf_value_type_id: __u32,
     pub map_ifindex: __u32,
+    pub __bindgen_anon_1: bpf_create_map_attr__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union bpf_create_map_attr__bindgen_ty_1 {
     pub inner_map_fd: __u32,
+    pub btf_vmlinux_value_type_id: __u32,
+    _bindgen_union_align: u32,
+}
+impl Default for bpf_create_map_attr__bindgen_ty_1 {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
 }
 impl Default for bpf_create_map_attr {
     fn default() -> Self {
@@ -1696,6 +1720,52 @@ extern "C" {
 extern "C" {
     pub fn bpf_map_freeze(fd: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_map_batch_opts {
+    pub sz: size_t,
+    pub elem_flags: __u64,
+    pub flags: __u64,
+}
+extern "C" {
+    pub fn bpf_map_delete_batch(
+        fd: ::std::os::raw::c_int,
+        keys: *mut ::std::os::raw::c_void,
+        count: *mut __u32,
+        opts: *const bpf_map_batch_opts,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_map_lookup_batch(
+        fd: ::std::os::raw::c_int,
+        in_batch: *mut ::std::os::raw::c_void,
+        out_batch: *mut ::std::os::raw::c_void,
+        keys: *mut ::std::os::raw::c_void,
+        values: *mut ::std::os::raw::c_void,
+        count: *mut __u32,
+        opts: *const bpf_map_batch_opts,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_map_lookup_and_delete_batch(
+        fd: ::std::os::raw::c_int,
+        in_batch: *mut ::std::os::raw::c_void,
+        out_batch: *mut ::std::os::raw::c_void,
+        keys: *mut ::std::os::raw::c_void,
+        values: *mut ::std::os::raw::c_void,
+        count: *mut __u32,
+        opts: *const bpf_map_batch_opts,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_map_update_batch(
+        fd: ::std::os::raw::c_int,
+        keys: *mut ::std::os::raw::c_void,
+        values: *mut ::std::os::raw::c_void,
+        count: *mut __u32,
+        opts: *const bpf_map_batch_opts,
+    ) -> ::std::os::raw::c_int;
+}
 extern "C" {
     pub fn bpf_obj_pin(
         fd: ::std::os::raw::c_int,
@@ -1705,12 +1775,27 @@ extern "C" {
 extern "C" {
     pub fn bpf_obj_get(pathname: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_prog_attach_opts {
+    pub sz: size_t,
+    pub flags: ::std::os::raw::c_uint,
+    pub replace_prog_fd: ::std::os::raw::c_int,
+}
 extern "C" {
     pub fn bpf_prog_attach(
         prog_fd: ::std::os::raw::c_int,
         attachable_fd: ::std::os::raw::c_int,
         type_: bpf_attach_type,
         flags: ::std::os::raw::c_uint,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_prog_attach_xattr(
+        prog_fd: ::std::os::raw::c_int,
+        attachable_fd: ::std::os::raw::c_int,
+        type_: bpf_attach_type,
+        opts: *const bpf_prog_attach_opts,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -1853,6 +1938,7 @@ impl Default for btf_type {
 }
 pub const BTF_VAR_STATIC: _bindgen_ty_48 = 0;
 pub const BTF_VAR_GLOBAL_ALLOCATED: _bindgen_ty_48 = 1;
+pub const BTF_VAR_GLOBAL_EXTERN: _bindgen_ty_48 = 2;
 pub type _bindgen_ty_48 = u32;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1908,6 +1994,9 @@ extern "C" {
 }
 extern "C" {
     pub fn btf__resolve_type(btf: *const btf, type_id: __u32) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn btf__align_of(btf: *const btf, id: __u32) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn btf__fd(btf: *const btf) -> ::std::os::raw::c_int;
@@ -1969,6 +2058,9 @@ extern "C" {
 extern "C" {
     pub fn btf_ext__line_info_rec_size(btf_ext: *const btf_ext) -> __u32;
 }
+extern "C" {
+    pub fn libbpf_find_kernel_btf() -> *mut btf;
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_dedup_opts {
@@ -2018,6 +2110,25 @@ extern "C" {
 extern "C" {
     pub fn btf_dump__dump_type(d: *mut btf_dump, id: __u32) -> ::std::os::raw::c_int;
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct btf_dump_emit_type_decl_opts {
+    pub sz: size_t,
+    pub field_name: *const ::std::os::raw::c_char,
+    pub indent_level: ::std::os::raw::c_int,
+}
+impl Default for btf_dump_emit_type_decl_opts {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+extern "C" {
+    pub fn btf_dump__emit_type_decl(
+        d: *mut btf_dump,
+        id: __u32,
+        opts: *const btf_dump_emit_type_decl_opts,
+    ) -> ::std::os::raw::c_int;
+}
 pub type pid_t = __pid_t;
 extern "C" {
     pub fn libbpf_strerror(
@@ -2060,6 +2171,7 @@ pub struct bpf_object_open_opts {
     pub relaxed_core_relocs: bool,
     pub pin_root_path: *const ::std::os::raw::c_char,
     pub attach_prog_fd: __u32,
+    pub kconfig: *const ::std::os::raw::c_char,
 }
 impl Default for bpf_object_open_opts {
     fn default() -> Self {
@@ -2072,14 +2184,14 @@ extern "C" {
 extern "C" {
     pub fn bpf_object__open_file(
         path: *const ::std::os::raw::c_char,
-        opts: *mut bpf_object_open_opts,
+        opts: *const bpf_object_open_opts,
     ) -> *mut bpf_object;
 }
 extern "C" {
     pub fn bpf_object__open_mem(
         obj_buf: *const ::std::os::raw::c_void,
         obj_buf_sz: size_t,
-        opts: *mut bpf_object_open_opts,
+        opts: *const bpf_object_open_opts,
     ) -> *mut bpf_object;
 }
 extern "C" {
@@ -2091,20 +2203,6 @@ extern "C" {
 }
 extern "C" {
     pub fn bpf_object__open_xattr(attr: *mut bpf_object_open_attr) -> *mut bpf_object;
-}
-extern "C" {
-    pub fn bpf_object__section_size(
-        obj: *const bpf_object,
-        name: *const ::std::os::raw::c_char,
-        size: *mut __u32,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn bpf_object__variable_offset(
-        obj: *const bpf_object,
-        name: *const ::std::os::raw::c_char,
-        off: *mut __u32,
-    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn bpf_object__pin_maps(
@@ -2184,6 +2282,12 @@ extern "C" {
     ) -> *mut bpf_program;
 }
 extern "C" {
+    pub fn bpf_object__find_program_by_name(
+        obj: *const bpf_object,
+        name: *const ::std::os::raw::c_char,
+    ) -> *mut bpf_program;
+}
+extern "C" {
     pub fn bpf_object__next(prev: *mut bpf_object) -> *mut bpf_object;
 }
 pub type bpf_object_clear_priv_t = ::std::option::Option<
@@ -2241,6 +2345,9 @@ extern "C" {
     pub fn bpf_program__set_ifindex(prog: *mut bpf_program, ifindex: __u32);
 }
 extern "C" {
+    pub fn bpf_program__name(prog: *const bpf_program) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
     pub fn bpf_program__title(
         prog: *const bpf_program,
         needs_copy: bool,
@@ -2294,7 +2401,13 @@ pub struct bpf_link {
     _unused: [u8; 0],
 }
 extern "C" {
+    pub fn bpf_link__disconnect(link: *mut bpf_link);
+}
+extern "C" {
     pub fn bpf_link__destroy(link: *mut bpf_link) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_program__attach(prog: *mut bpf_program) -> *mut bpf_link;
 }
 extern "C" {
     pub fn bpf_program__attach_perf_event(
@@ -2333,6 +2446,14 @@ extern "C" {
 }
 extern "C" {
     pub fn bpf_program__attach_trace(prog: *mut bpf_program) -> *mut bpf_link;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct bpf_map {
+    _unused: [u8; 0],
+}
+extern "C" {
+    pub fn bpf_map__attach_struct_ops(map: *mut bpf_map) -> *mut bpf_link;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2396,6 +2517,12 @@ extern "C" {
     pub fn bpf_program__set_tracing(prog: *mut bpf_program) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn bpf_program__set_struct_ops(prog: *mut bpf_program) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_program__set_extension(prog: *mut bpf_program) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn bpf_program__get_type(prog: *mut bpf_program) -> bpf_prog_type;
 }
 extern "C" {
@@ -2434,6 +2561,12 @@ extern "C" {
 extern "C" {
     pub fn bpf_program__is_tracing(prog: *const bpf_program) -> bool;
 }
+extern "C" {
+    pub fn bpf_program__is_struct_ops(prog: *const bpf_program) -> bool;
+}
+extern "C" {
+    pub fn bpf_program__is_extension(prog: *const bpf_program) -> bool;
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_map_def {
@@ -2442,11 +2575,6 @@ pub struct bpf_map_def {
     pub value_size: ::std::os::raw::c_uint,
     pub max_entries: ::std::os::raw::c_uint,
     pub map_flags: ::std::os::raw::c_uint,
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct bpf_map {
-    _unused: [u8; 0],
 }
 extern "C" {
     pub fn bpf_object__find_map_by_name(
@@ -2706,52 +2834,6 @@ extern "C" {
         private_data: *mut ::std::os::raw::c_void,
     ) -> bpf_perf_event_ret;
 }
-pub type libbpf_dump_nlmsg_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        cookie: *mut ::std::os::raw::c_void,
-        msg: *mut ::std::os::raw::c_void,
-        tb: *mut *mut nlattr,
-    ) -> ::std::os::raw::c_int,
->;
-extern "C" {
-    pub fn libbpf_netlink_open(nl_pid: *mut ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn libbpf_nl_get_link(
-        sock: ::std::os::raw::c_int,
-        nl_pid: ::std::os::raw::c_uint,
-        dump_link_nlmsg: libbpf_dump_nlmsg_t,
-        cookie: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn libbpf_nl_get_class(
-        sock: ::std::os::raw::c_int,
-        nl_pid: ::std::os::raw::c_uint,
-        ifindex: ::std::os::raw::c_int,
-        dump_class_nlmsg: libbpf_dump_nlmsg_t,
-        cookie: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn libbpf_nl_get_qdisc(
-        sock: ::std::os::raw::c_int,
-        nl_pid: ::std::os::raw::c_uint,
-        ifindex: ::std::os::raw::c_int,
-        dump_qdisc_nlmsg: libbpf_dump_nlmsg_t,
-        cookie: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn libbpf_nl_get_filter(
-        sock: ::std::os::raw::c_int,
-        nl_pid: ::std::os::raw::c_uint,
-        ifindex: ::std::os::raw::c_int,
-        handle: ::std::os::raw::c_int,
-        dump_filter_nlmsg: libbpf_dump_nlmsg_t,
-        cookie: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_prog_linfo {
@@ -2786,6 +2868,9 @@ extern "C" {
 }
 extern "C" {
     pub fn bpf_probe_helper(id: bpf_func_id, prog_type: bpf_prog_type, ifindex: __u32) -> bool;
+}
+extern "C" {
+    pub fn bpf_probe_large_insn_limit(ifindex: __u32) -> bool;
 }
 pub const BPF_PROG_INFO_FIRST_ARRAY: bpf_prog_info_array = 0;
 pub const BPF_PROG_INFO_JITED_INSNS: bpf_prog_info_array = 0;
@@ -2822,6 +2907,68 @@ extern "C" {
 }
 extern "C" {
     pub fn libbpf_num_possible_cpus() -> ::std::os::raw::c_int;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct bpf_map_skeleton {
+    pub name: *const ::std::os::raw::c_char,
+    pub map: *mut *mut bpf_map,
+    pub mmaped: *mut *mut ::std::os::raw::c_void,
+}
+impl Default for bpf_map_skeleton {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct bpf_prog_skeleton {
+    pub name: *const ::std::os::raw::c_char,
+    pub prog: *mut *mut bpf_program,
+    pub link: *mut *mut bpf_link,
+}
+impl Default for bpf_prog_skeleton {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct bpf_object_skeleton {
+    pub sz: size_t,
+    pub name: *const ::std::os::raw::c_char,
+    pub data: *mut ::std::os::raw::c_void,
+    pub data_sz: size_t,
+    pub obj: *mut *mut bpf_object,
+    pub map_cnt: ::std::os::raw::c_int,
+    pub map_skel_sz: ::std::os::raw::c_int,
+    pub maps: *mut bpf_map_skeleton,
+    pub prog_cnt: ::std::os::raw::c_int,
+    pub prog_skel_sz: ::std::os::raw::c_int,
+    pub progs: *mut bpf_prog_skeleton,
+}
+impl Default for bpf_object_skeleton {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+extern "C" {
+    pub fn bpf_object__open_skeleton(
+        s: *mut bpf_object_skeleton,
+        opts: *const bpf_object_open_opts,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_object__load_skeleton(s: *mut bpf_object_skeleton) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_object__attach_skeleton(s: *mut bpf_object_skeleton) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_object__detach_skeleton(s: *mut bpf_object_skeleton);
+}
+extern "C" {
+    pub fn bpf_object__destroy_skeleton(s: *mut bpf_object_skeleton);
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
