@@ -4,7 +4,7 @@ DOCKER="docker"
 
 set -eu -o pipefail
 
-${DOCKER} build -t libbpf-sys-builder - <<'EOF'
+${DOCKER} build --no-cache -t libbpf-sys-builder - <<'EOF'
 FROM amd64/ubuntu:bionic AS libbpf-sys-builder
 
 ENV LANG=C.UTF-8
@@ -37,6 +37,7 @@ ENTRYPOINT \
 		--whitelist-function "_xsk_.+" \
 		--whitelist-function "xdp_.+" \
 		--whitelist-function "perf_buffer_.+" \
+		--whitelist-type "bpf_.*" \
 		--whitelist-type "xdp_.*" \
 		--whitelist-type "xsk_.*" \
 		--whitelist-var "BPF_.+" \
