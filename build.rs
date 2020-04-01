@@ -41,6 +41,7 @@ fn main() {
 
         println!("cargo:rustc-link-search=native={}", out_dir_str);
         println!("cargo:rustc-link-lib=elf");
+        println!("cargo:rustc-link-lib=z");
         println!("cargo:rustc-link-lib=static=bpf");
     }
 }
