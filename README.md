@@ -1,28 +1,44 @@
-# libbpf-sys
+# libbpf-sys [![Travis CI build status badge](https://travis-ci.org/alexforster/libbpf-sys.svg?branch=master)](https://travis-ci.org/alexforster/libbpf-sys) [![crates.io version number badge](https://img.shields.io/crates/v/libbpf-sys.svg)](https://crates.io/crates/libbpf-sys)
 
-Rust bindings to libbpf from the Linux kernel
+**Rust bindings to _libbpf_ from the Linux kernel**
 
-**Author:** Alex Forster \<alex@alexforster.com\><br/>
+**Maintainer:** Alex Forster \<alex@alexforster.com\><br/>
 **License:** `BSD-2-Clause`
 
-[![Build Status](https://travis-ci.org/alexforster/libbpf-sys.svg?branch=master)](https://travis-ci.org/alexforster/libbpf-sys)
+_libbpf-sys_ is the packaged result of using _bindgen_ to automatically generate Rust FFI bindings to _libbpf_ from the Linux kernel.
 
-### Attributions
+**Warning:** this crate does not provide a high-level or "safe" API wrapper around _libbpf_. If you are looking for an easier way to use _libbpf_, check out these other crates that implement higher-level APIs using _libbpf-sys_...
 
-This crate dynamically links with the following libraries:
+ * **afxdp:** a Rust interface for AF_XDP – [GitHub](https://github.com/aterlo/afxdp-rs) | [Crates.io](https://crates.io/crates/afxdp)
 
-#### `libbpf`
+The community is encouraged to build higher-level crates using _libbpf-sys_. Please let me know if you do!
 
-**Website:** [github.com/libbpf/libbpf](https://github.com/libbpf/libbpf/)<br/>
-**License:** `LGPL-2.1-only OR BSD-2-Clause`
+### Building
 
-#### `libelf`
+As part of the `cargo build` process, an included copy of _libbpf_ is compiled and statically linked into the resulting binary. This means that, in order to build a project that depends on this crate, your system must provide a working C compiler toolchain (GCC and Clang should both work). Additionally, your system must provide development headers for _zlib_ and _libelf_, and they must be discoverable via _pkgconfig_.
 
-**Website:** [sourceware.org/elfutils](https://sourceware.org/elfutils/)<br/>
-**License:** `LGPL-2.1-or-later OR LGPL-3.0-or-later`
+### Distribution
 
-#### `zlib`
+When you add this crate as a dependency to your project, your resulting binaries will dynamically link with `libz` and `libelf`. This means that the systems where you run your binaries must have these libraries installed.
 
-**Website:** [zlib.net](https://www.zlib.net/)<br/>
-**License:** `Zlib`
+### Versioning
 
+Because the API of this crate is automatically generated from _libbpf_ sources, it uses a versioning scheme based on the version of _libbpf_ that it provides.
+
+The "Major.Minor.Patch" semver numbers correspond exactly to the _libbpf_ version that each release provides. For example, the `0.0.8-1` release of this crate provides the API for the _libbpf v0.0.8_ release.
+
+In order to allow for human error, all releases have a "pre-release" version number appended to them. For example, both the `0.0.6-1` and `0.0.6-2` releases of this crate contain bindings to _libbpf v0.0.6_, but the later release contains bugfixes and/or enhancements to the crate itself.
+
+**Note:** because this crate uses a "pre-release" version number, it is impossible to use wildcard-style version syntax in your `Cargo.toml` file. You must specify the exact version of `libbpf-sys`, and you must not assume that any other version will be API or ABI compatible.
+
+### Licensing and Dependencies
+
+This crate is released under the BSD 2-Clause license, and is careful to avoid infecting users with viral licenses.
+
+It currently depends on the following third-party libraries:
+
+|            | Website                                                       | License                                  | Linkage |
+|------------|---------------------------------------------------------------|------------------------------------------|---------|
+| **libbpf** | [github.com/libbpf/libbpf](https://github.com/libbpf/libbpf/) | `LGPL-2.1-only OR BSD-2-Clause`          | Static  |
+| **libelf** | [sourceware.org/elfutils](https://sourceware.org/elfutils/)   | `LGPL-2.1-or-later OR LGPL-3.0-or-later` | Dynamic |
+| **zlib**   | [zlib.net](https://www.zlib.net/)                             | `Zlib`                                   | Dynamic |
