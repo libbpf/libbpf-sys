@@ -10,6 +10,7 @@ _libbpf-sys_ is the packaged result of using _bindgen_ to automatically generate
 **Warning:** this crate does not provide a high-level or "safe" API wrapper around _libbpf_. If you are looking for an easier way to use _libbpf_, check out these other crates that implement higher-level APIs using _libbpf-sys_...
 
  * **afxdp:** a Rust interface for AF_XDP – [GitHub](https://github.com/aterlo/afxdp-rs) | [Crates.io](https://crates.io/crates/afxdp)
+ * **rebpf:** write and load eBPF programs in Rust – [GitHub](https://github.com/uccidibuti/rebpf) | [Crates.io](https://crates.io/crates/rebpf)
 
 The community is encouraged to build higher-level crates using _libbpf-sys_. Please let me know if you do!
 
