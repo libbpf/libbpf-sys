@@ -23,3 +23,13 @@ extern struct xdp_desc *_xsk_ring_prod__tx_desc(struct xsk_ring_prod *tx, __u32 
 extern void *_xsk_umem__get_data(void *umem_area, __u64 addr);
 
 extern int _xsk_ring_prod__needs_wakeup(const struct xsk_ring_prod *r);
+
+extern int _xsk_prod_nb_free(struct xsk_ring_prod *r, __u32 nb);
+
+extern int _xsk_cons_nb_avail(struct xsk_ring_cons *r, __u32 nb);
+
+extern __u64 _xsk_umem__extract_addr(__u64 addr);
+
+extern __u64 _xsk_umem__extract_offset(__u64 addr);
+
+extern __u64 _xsk_umem__add_offset_to_addr(__u64 addr);

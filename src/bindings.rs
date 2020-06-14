@@ -3315,6 +3315,21 @@ extern "C" {
 extern "C" {
     pub fn _xsk_ring_prod__needs_wakeup(r: *const xsk_ring_prod) -> ::std::os::raw::c_int;
 }
+extern "C" {
+    pub fn _xsk_prod_nb_free(r: *mut xsk_ring_prod, nb: __u32) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn _xsk_cons_nb_avail(r: *mut xsk_ring_cons, nb: __u32) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn _xsk_umem__extract_addr(addr: __u64) -> __u64;
+}
+extern "C" {
+    pub fn _xsk_umem__extract_offset(addr: __u64) -> __u64;
+}
+extern "C" {
+    pub fn _xsk_umem__add_offset_to_addr(addr: __u64) -> __u64;
+}
 pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
