@@ -77,5 +77,5 @@ inline __u64 _xsk_umem__extract_offset(__u64 addr)
 
 inline __u64 _xsk_umem__add_offset_to_addr(__u64 addr)
 {
-    return _xsk_umem__add_offset_to_addr(addr);
+    return xsk_umem__add_offset_to_addr(addr);
 }
