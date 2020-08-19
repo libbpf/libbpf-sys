@@ -13,6 +13,7 @@ authors = [
 license = "BSD-2-Clause"
 edition = "2018"
 build = "build.rs"
+links = "libbpf"
 
 [badges]
 travis-ci = { repository = "alexforster/libbpf-sys" }

@@ -43,5 +43,6 @@ fn main() {
         println!("cargo:rustc-link-lib=elf");
         println!("cargo:rustc-link-lib=z");
         println!("cargo:rustc-link-lib=static=bpf");
+        println!("cargo:include={}/include", out_dir_str);
     }
 }
