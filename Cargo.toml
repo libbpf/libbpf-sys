@@ -1,6 +1,6 @@
 [package]
 name = "libbpf-sys"
-version = "0.2.0-1"
+version = "0.2.0-2"
 description = "Rust bindings to libbpf from the Linux kernel"
 readme = "README.md"
 repository = "https://github.com/alexforster/libbpf-sys"
@@ -9,6 +9,7 @@ keywords = ["bpf", "ebpf", "xdp"]
 authors = [
 	"Alex Forster <alex@alexforster.com>",
 	"Dan Siemon <dan@coverfire.com>",
+	"Daniel Xu <dxu@dxuuu.xyz>",
 ]
 license = "BSD-2-Clause"
 edition = "2018"
