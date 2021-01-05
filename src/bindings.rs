@@ -3655,6 +3655,51 @@ extern "C" {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct ring_buffer {
+    _unused: [u8; 0],
+}
+pub type ring_buffer_sample_fn = ::std::option::Option<
+    unsafe extern "C" fn(
+        ctx: *mut ::std::os::raw::c_void,
+        data: *mut ::std::os::raw::c_void,
+        size: size_t,
+    ) -> ::std::os::raw::c_int,
+>;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct ring_buffer_opts {
+    pub sz: size_t,
+}
+extern "C" {
+    pub fn ring_buffer__new(
+        map_fd: ::std::os::raw::c_int,
+        sample_cb: ring_buffer_sample_fn,
+        ctx: *mut ::std::os::raw::c_void,
+        opts: *const ring_buffer_opts,
+    ) -> *mut ring_buffer;
+}
+extern "C" {
+    pub fn ring_buffer__free(rb: *mut ring_buffer);
+}
+extern "C" {
+    pub fn ring_buffer__add(
+        rb: *mut ring_buffer,
+        map_fd: ::std::os::raw::c_int,
+        sample_cb: ring_buffer_sample_fn,
+        ctx: *mut ::std::os::raw::c_void,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ring_buffer__poll(
+        rb: *mut ring_buffer,
+        timeout_ms: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ring_buffer__consume(rb: *mut ring_buffer) -> ::std::os::raw::c_int;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct perf_buffer {
     _unused: [u8; 0],
 }
