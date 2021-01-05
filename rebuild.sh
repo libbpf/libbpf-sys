@@ -37,6 +37,7 @@ ENTRYPOINT \
 		--whitelist-function "xsk_.+" \
 		--whitelist-function "_xsk_.+" \
 		--whitelist-function "perf_buffer_.+" \
+		--whitelist-function "ring_buffer_.+" \
 		--whitelist-type "bpf_.*" \
 		--whitelist-type "xdp_.*" \
 		--whitelist-type "xsk_.*" \
