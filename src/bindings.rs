@@ -418,6 +418,7 @@ pub const BPF_MAP_TYPE_DEVMAP_HASH: bpf_map_type = 25;
 pub const BPF_MAP_TYPE_STRUCT_OPS: bpf_map_type = 26;
 pub const BPF_MAP_TYPE_RINGBUF: bpf_map_type = 27;
 pub const BPF_MAP_TYPE_INODE_STORAGE: bpf_map_type = 28;
+pub const BPF_MAP_TYPE_TASK_STORAGE: bpf_map_type = 29;
 pub type bpf_map_type = ::std::os::raw::c_uint;
 pub const BPF_PROG_TYPE_UNSPEC: bpf_prog_type = 0;
 pub const BPF_PROG_TYPE_SOCKET_FILTER: bpf_prog_type = 1;
@@ -628,7 +629,7 @@ pub struct bpf_attr__bindgen_ty_3 {
     pub flags: __u64,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct bpf_attr__bindgen_ty_4 {
     pub prog_type: __u32,
     pub insn_cnt: __u32,
@@ -650,7 +651,24 @@ pub struct bpf_attr__bindgen_ty_4 {
     pub line_info: __u64,
     pub line_info_cnt: __u32,
     pub attach_btf_id: __u32,
+    pub __bindgen_anon_1: bpf_attr__bindgen_ty_4__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union bpf_attr__bindgen_ty_4__bindgen_ty_1 {
     pub attach_prog_fd: __u32,
+    pub attach_btf_obj_fd: __u32,
+    _bindgen_union_align: u32,
+}
+impl Default for bpf_attr__bindgen_ty_4__bindgen_ty_1 {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+impl Default for bpf_attr__bindgen_ty_4 {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -991,10 +1009,17 @@ pub const BPF_FUNC_snprintf_btf: bpf_func_id = 149;
 pub const BPF_FUNC_seq_printf_btf: bpf_func_id = 150;
 pub const BPF_FUNC_skb_cgroup_classid: bpf_func_id = 151;
 pub const BPF_FUNC_redirect_neigh: bpf_func_id = 152;
-pub const BPF_FUNC_bpf_per_cpu_ptr: bpf_func_id = 153;
-pub const BPF_FUNC_bpf_this_cpu_ptr: bpf_func_id = 154;
+pub const BPF_FUNC_per_cpu_ptr: bpf_func_id = 153;
+pub const BPF_FUNC_this_cpu_ptr: bpf_func_id = 154;
 pub const BPF_FUNC_redirect_peer: bpf_func_id = 155;
-pub const __BPF_FUNC_MAX_ID: bpf_func_id = 156;
+pub const BPF_FUNC_task_storage_get: bpf_func_id = 156;
+pub const BPF_FUNC_task_storage_delete: bpf_func_id = 157;
+pub const BPF_FUNC_get_current_task_btf: bpf_func_id = 158;
+pub const BPF_FUNC_bprm_opts_set: bpf_func_id = 159;
+pub const BPF_FUNC_ktime_get_coarse_ns: bpf_func_id = 160;
+pub const BPF_FUNC_ima_inode_hash: bpf_func_id = 161;
+pub const BPF_FUNC_sock_from_file: bpf_func_id = 162;
+pub const __BPF_FUNC_MAX_ID: bpf_func_id = 163;
 pub type bpf_func_id = ::std::os::raw::c_uint;
 pub const BPF_F_RECOMPUTE_CSUM: ::std::os::raw::c_uint = 1;
 pub const BPF_F_INVALIDATE_HASH: ::std::os::raw::c_uint = 2;
@@ -1072,6 +1097,8 @@ pub const BPF_LWT_ENCAP_SEG6: bpf_lwt_encap_mode = 0;
 pub const BPF_LWT_ENCAP_SEG6_INLINE: bpf_lwt_encap_mode = 1;
 pub const BPF_LWT_ENCAP_IP: bpf_lwt_encap_mode = 2;
 pub type bpf_lwt_encap_mode = ::std::os::raw::c_uint;
+pub const BPF_F_BPRM_SECUREEXEC: ::std::os::raw::c_uint = 1;
+pub type _bindgen_ty_66 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_tunnel_key {
@@ -1368,6 +1395,9 @@ pub struct bpf_btf_info {
     pub btf: __u64,
     pub btf_size: __u32,
     pub id: __u32,
+    pub name: __u64,
+    pub name_len: __u32,
+    pub kernel_btf: __u32,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -1623,7 +1653,7 @@ pub const BPF_SOCK_OPS_PARSE_ALL_HDR_OPT_CB_FLAG: ::std::os::raw::c_uint = 16;
 pub const BPF_SOCK_OPS_PARSE_UNKNOWN_HDR_OPT_CB_FLAG: ::std::os::raw::c_uint = 32;
 pub const BPF_SOCK_OPS_WRITE_HDR_OPT_CB_FLAG: ::std::os::raw::c_uint = 64;
 pub const BPF_SOCK_OPS_ALL_CB_FLAGS: ::std::os::raw::c_uint = 127;
-pub type _bindgen_ty_66 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_67 = ::std::os::raw::c_uint;
 pub const BPF_SOCK_OPS_VOID: ::std::os::raw::c_uint = 0;
 pub const BPF_SOCK_OPS_TIMEOUT_INIT: ::std::os::raw::c_uint = 1;
 pub const BPF_SOCK_OPS_RWND_INIT: ::std::os::raw::c_uint = 2;
@@ -1640,7 +1670,7 @@ pub const BPF_SOCK_OPS_RTT_CB: ::std::os::raw::c_uint = 12;
 pub const BPF_SOCK_OPS_PARSE_HDR_OPT_CB: ::std::os::raw::c_uint = 13;
 pub const BPF_SOCK_OPS_HDR_OPT_LEN_CB: ::std::os::raw::c_uint = 14;
 pub const BPF_SOCK_OPS_WRITE_HDR_OPT_CB: ::std::os::raw::c_uint = 15;
-pub type _bindgen_ty_67 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_68 = ::std::os::raw::c_uint;
 pub const BPF_TCP_ESTABLISHED: ::std::os::raw::c_uint = 1;
 pub const BPF_TCP_SYN_SENT: ::std::os::raw::c_uint = 2;
 pub const BPF_TCP_SYN_RECV: ::std::os::raw::c_uint = 3;
@@ -1654,12 +1684,12 @@ pub const BPF_TCP_LISTEN: ::std::os::raw::c_uint = 10;
 pub const BPF_TCP_CLOSING: ::std::os::raw::c_uint = 11;
 pub const BPF_TCP_NEW_SYN_RECV: ::std::os::raw::c_uint = 12;
 pub const BPF_TCP_MAX_STATES: ::std::os::raw::c_uint = 13;
-pub type _bindgen_ty_68 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_69 = ::std::os::raw::c_uint;
 pub const BPF_LOAD_HDR_OPT_TCP_SYN: ::std::os::raw::c_uint = 1;
-pub type _bindgen_ty_70 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_71 = ::std::os::raw::c_uint;
 pub const BPF_WRITE_HDR_TCP_CURRENT_MSS: ::std::os::raw::c_uint = 1;
 pub const BPF_WRITE_HDR_TCP_SYNACK_COOKIE: ::std::os::raw::c_uint = 2;
-pub type _bindgen_ty_71 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_72 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_perf_event_value {
@@ -1670,10 +1700,10 @@ pub struct bpf_perf_event_value {
 pub const BPF_DEVCG_ACC_MKNOD: ::std::os::raw::c_uint = 1;
 pub const BPF_DEVCG_ACC_READ: ::std::os::raw::c_uint = 2;
 pub const BPF_DEVCG_ACC_WRITE: ::std::os::raw::c_uint = 4;
-pub type _bindgen_ty_72 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_73 = ::std::os::raw::c_uint;
 pub const BPF_DEVCG_DEV_BLOCK: ::std::os::raw::c_uint = 1;
 pub const BPF_DEVCG_DEV_CHAR: ::std::os::raw::c_uint = 2;
-pub type _bindgen_ty_73 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_74 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_cgroup_dev_ctx {
@@ -1688,7 +1718,7 @@ pub struct bpf_raw_tracepoint_args {
 }
 pub const BPF_FIB_LOOKUP_DIRECT: ::std::os::raw::c_uint = 1;
 pub const BPF_FIB_LOOKUP_OUTPUT: ::std::os::raw::c_uint = 2;
-pub type _bindgen_ty_74 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_75 = ::std::os::raw::c_uint;
 pub const BPF_FIB_LKUP_RET_SUCCESS: ::std::os::raw::c_uint = 0;
 pub const BPF_FIB_LKUP_RET_BLACKHOLE: ::std::os::raw::c_uint = 1;
 pub const BPF_FIB_LKUP_RET_UNREACHABLE: ::std::os::raw::c_uint = 2;
@@ -1698,7 +1728,7 @@ pub const BPF_FIB_LKUP_RET_FWD_DISABLED: ::std::os::raw::c_uint = 5;
 pub const BPF_FIB_LKUP_RET_UNSUPP_LWT: ::std::os::raw::c_uint = 6;
 pub const BPF_FIB_LKUP_RET_NO_NEIGH: ::std::os::raw::c_uint = 7;
 pub const BPF_FIB_LKUP_RET_FRAG_NEEDED: ::std::os::raw::c_uint = 8;
-pub type _bindgen_ty_75 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_76 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_fib_lookup {
@@ -1791,7 +1821,7 @@ pub type bpf_task_fd_type = ::std::os::raw::c_uint;
 pub const BPF_FLOW_DISSECTOR_F_PARSE_1ST_FRAG: ::std::os::raw::c_uint = 1;
 pub const BPF_FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL: ::std::os::raw::c_uint = 2;
 pub const BPF_FLOW_DISSECTOR_F_STOP_AT_ENCAP: ::std::os::raw::c_uint = 4;
-pub type _bindgen_ty_76 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_77 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_flow_keys {
@@ -1987,7 +2017,7 @@ pub const BTF_F_COMPACT: ::std::os::raw::c_uint = 1;
 pub const BTF_F_NONAME: ::std::os::raw::c_uint = 2;
 pub const BTF_F_PTR_RAW: ::std::os::raw::c_uint = 4;
 pub const BTF_F_ZERO: ::std::os::raw::c_uint = 8;
-pub type _bindgen_ty_77 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_78 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_create_map_attr {
@@ -2514,7 +2544,7 @@ impl Default for btf_type {
 pub const BTF_VAR_STATIC: ::std::os::raw::c_uint = 0;
 pub const BTF_VAR_GLOBAL_ALLOCATED: ::std::os::raw::c_uint = 1;
 pub const BTF_VAR_GLOBAL_EXTERN: ::std::os::raw::c_uint = 2;
-pub type _bindgen_ty_78 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_79 = ::std::os::raw::c_uint;
 pub const BTF_FUNC_STATIC: btf_func_linkage = 0;
 pub const BTF_FUNC_GLOBAL: btf_func_linkage = 1;
 pub const BTF_FUNC_EXTERN: btf_func_linkage = 2;
@@ -2544,10 +2574,23 @@ extern "C" {
     pub fn btf__new(data: *const ::std::os::raw::c_void, size: __u32) -> *mut btf;
 }
 extern "C" {
+    pub fn btf__new_split(
+        data: *const ::std::os::raw::c_void,
+        size: __u32,
+        base_btf: *mut btf,
+    ) -> *mut btf;
+}
+extern "C" {
     pub fn btf__new_empty() -> *mut btf;
 }
 extern "C" {
+    pub fn btf__new_empty_split(base_btf: *mut btf) -> *mut btf;
+}
+extern "C" {
     pub fn btf__parse(path: *const ::std::os::raw::c_char, btf_ext: *mut *mut btf_ext) -> *mut btf;
+}
+extern "C" {
+    pub fn btf__parse_split(path: *const ::std::os::raw::c_char, base_btf: *mut btf) -> *mut btf;
 }
 extern "C" {
     pub fn btf__parse_elf(
@@ -2556,7 +2599,19 @@ extern "C" {
     ) -> *mut btf;
 }
 extern "C" {
+    pub fn btf__parse_elf_split(
+        path: *const ::std::os::raw::c_char,
+        base_btf: *mut btf,
+    ) -> *mut btf;
+}
+extern "C" {
     pub fn btf__parse_raw(path: *const ::std::os::raw::c_char) -> *mut btf;
+}
+extern "C" {
+    pub fn btf__parse_raw_split(
+        path: *const ::std::os::raw::c_char,
+        base_btf: *mut btf,
+    ) -> *mut btf;
 }
 extern "C" {
     pub fn btf__finalize_data(obj: *mut bpf_object, btf: *mut btf) -> ::std::os::raw::c_int;
@@ -2576,6 +2631,9 @@ extern "C" {
 }
 extern "C" {
     pub fn btf__get_nr_types(btf: *const btf) -> __u32;
+}
+extern "C" {
+    pub fn btf__base_btf(btf: *const btf) -> *const btf;
 }
 extern "C" {
     pub fn btf__type_by_id(btf: *const btf, id: __u32) -> *const btf_type;
@@ -3698,6 +3756,9 @@ extern "C" {
 extern "C" {
     pub fn ring_buffer__consume(rb: *mut ring_buffer) -> ::std::os::raw::c_int;
 }
+extern "C" {
+    pub fn ring_buffer__epoll_fd(rb: *const ring_buffer) -> ::std::os::raw::c_int;
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct perf_buffer {
@@ -4057,6 +4118,18 @@ pub struct xsk_umem_config {
     pub frame_size: __u32,
     pub frame_headroom: __u32,
     pub flags: __u32,
+}
+extern "C" {
+    pub fn xsk_setup_xdp_prog(
+        ifindex: ::std::os::raw::c_int,
+        xsks_map_fd: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn xsk_socket__update_xskmap(
+        xsk: *mut xsk_socket,
+        xsks_map_fd: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
