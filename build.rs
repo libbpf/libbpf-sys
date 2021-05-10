@@ -9,7 +9,28 @@ fn main() {
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let out_dir_str = out_dir.to_str().unwrap();
 
-    if cfg!(target_os = "linux") {
+    if !cfg!(target_os = "linux") {
+        panic!("Cannot use libbpf-sys on !linux");
+    }
+
+    if cfg!(feature = "novendor") {
+        let libbpf = pkg_config::Config::new()
+            .atleast_version(&format!(
+                "{}.{}.{}",
+                env!("CARGO_PKG_VERSION_MAJOR"),
+                env!("CARGO_PKG_VERSION_MINOR"),
+                env!("CARGO_PKG_VERSION_PATCH")
+            ))
+            .probe("libbpf")
+            .unwrap();
+
+        cc::Build::new()
+            .file("bindings.c")
+            .includes(&libbpf.include_paths)
+            .define("__LIBBPF_SYS_NOVENDOR", None)
+            .out_dir(out_dir_str)
+            .compile("bindings");
+    } else {
         let status = Command::new("make")
             .arg("install")
             .env("BUILD_STATIC_ONLY", "y")
