@@ -48,6 +48,7 @@ ENTRYPOINT \
 		--default-enum-style consts \
 		--no-prepend-enum-name \
 		--no-layout-tests \
+		--no-doc-comments \
 		--builtins \
 		--output $(pwd)/src/bindings.rs \
 		$(pwd)/bindings.h \
