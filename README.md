@@ -10,9 +10,10 @@ _libbpf-sys_ is the packaged result of using _bindgen_ to automatically generate
 **Warning:** this crate does not provide a high-level or "safe" API wrapper around _libbpf_. If you are looking for an easier way to use _libbpf_, check out these other crates that implement higher-level APIs using _libbpf-sys_...
 
  * **afxdp:** a Rust interface for AF_XDP – [GitHub](https://github.com/aterlo/afxdp-rs) | [Crates.io](https://crates.io/crates/afxdp)
+ * **libbpf-cargo:** Cargo plugin to build bpf programs – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-cargo)
+ * **libbpf-rs:** a safe, idiomatic, and opinionated wrapper around libbpf-sys – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-rs)
  * **rebpf:** write and load eBPF programs in Rust – [GitHub](https://github.com/uccidibuti/rebpf) | [Crates.io](https://crates.io/crates/rebpf)
- * **libbpf-rs:** minimal and opinionated eBPF tooling for the Rust ecosystem – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-rs)
- * **libbpf-cargo:** idiomatic rust wrapper around libbpf – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-cargo)
+ * **xsk-rs:** a Rust interface for Linux AF_XDP sockets – [Github](https://github.com/DouglasGray/xsk-rs) | [Crates.io](https://crates.io/crates/xsk-rs)
 
 The community is encouraged to build higher-level crates using _libbpf-sys_. Please let me know if you do!
 
