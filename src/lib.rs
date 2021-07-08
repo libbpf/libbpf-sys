@@ -5,3 +5,26 @@
 #![allow(non_snake_case)]
 
 include!("bindings.rs");
+
+macro_rules! header {
+    ($file:literal) => {
+        ($file, include_str!(concat!("../libbpf/src/", $file)))
+    };
+}
+
+/// Vendored libbpf headers
+///
+/// Tuple format is: (header filename, header contents)
+#[cfg(not(feature = "novendor"))]
+pub const API_HEADERS: [(&'static str, &'static str); 10] = [
+    header!("bpf.h"),
+    header!("libbpf.h"),
+    header!("btf.h"),
+    header!("xsk.h"),
+    header!("bpf_helpers.h"),
+    header!("bpf_helper_defs.h"),
+    header!("bpf_tracing.h"),
+    header!("bpf_endian.h"),
+    header!("bpf_core_read.h"),
+    header!("libbpf_common.h"),
+];
