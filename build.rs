@@ -1,6 +1,7 @@
 // build.rs
 
 use std::env;
+use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -33,12 +34,15 @@ fn main() {
     } else {
         let compiler = cc::Build::new().get_compiler();
 
+        let obj_dir = out_dir.join("obj").into_os_string();
+        let _ = fs::create_dir(&obj_dir);
+
         let status = Command::new("make")
             .arg("install")
             .env("BUILD_STATIC_ONLY", "y")
             .env("PREFIX", "/")
             .env("LIBDIR", "")
-            .env("OBJDIR", out_dir.join("obj").to_str().unwrap())
+            .env("OBJDIR", &obj_dir)
             .env("DESTDIR", out_dir_str)
             .env("CC", compiler.path())
             .env("CFLAGS", compiler.cflags_env())
