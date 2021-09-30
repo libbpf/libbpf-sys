@@ -1,6 +1,7 @@
 // build.rs
 
 use std::env;
+use std::fs::create_dir;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -31,12 +32,16 @@ fn main() {
             .out_dir(out_dir_str)
             .compile("bindings");
     } else {
+        let obj_dir = out_dir.join("obj").to_str().unwrap();
+        // We want to ignore an AlreadyExists error, and make will probably scream about
+        // any other sort of error, so it’s easiest to just ignore all errors here.
+        let _ = create_dir(obj_dir);
         let status = Command::new("make")
             .arg("install")
             .env("BUILD_STATIC_ONLY", "y")
             .env("PREFIX", "/")
             .env("LIBDIR", "")
-            .env("OBJDIR", out_dir.join("obj").to_str().unwrap())
+            .env("OBJDIR", obj_dir)
             .env("DESTDIR", out_dir_str)
             .env("CFLAGS", "-g -O2 -Werror -Wall -fPIC")
             .current_dir(src_dir.join("libbpf/src"))
