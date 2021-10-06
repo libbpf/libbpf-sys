@@ -31,6 +31,8 @@ fn main() {
             .out_dir(out_dir_str)
             .compile("bindings");
     } else {
+        let compiler = cc::Build::new().get_compiler();
+
         let status = Command::new("make")
             .arg("install")
             .env("BUILD_STATIC_ONLY", "y")
@@ -38,7 +40,8 @@ fn main() {
             .env("LIBDIR", "")
             .env("OBJDIR", out_dir.join("obj").to_str().unwrap())
             .env("DESTDIR", out_dir_str)
-            .env("CFLAGS", "-g -O2 -Werror -Wall -fPIC")
+            .env("CC", compiler.path())
+            .env("CFLAGS", compiler.cflags_env())
             .current_dir(src_dir.join("libbpf/src"))
             .status()
             .unwrap();
