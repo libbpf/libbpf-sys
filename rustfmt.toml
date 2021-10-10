@@ -1,0 +1,8 @@
+unstable_features = true
+
+binop_separator = "Back"
+comment_width = 100
+edition = "2018"
+max_width = 120
+use_small_heuristics = "Max"
+wrap_comments = true
