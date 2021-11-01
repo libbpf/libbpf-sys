@@ -5,7 +5,7 @@ DOCKER="docker"
 set -eu -o pipefail
 
 ${DOCKER} build -t libbpf-sys-builder - <<'EOF'
-FROM amd64/ubuntu:groovy AS libbpf-sys-builder
+FROM amd64/ubuntu:focal AS libbpf-sys-builder
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
@@ -22,7 +22,9 @@ RUN \
 	apt-get -q clean autoclean;
 
 RUN \
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable; \
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable;
+
+RUN \
 	source $HOME/.cargo/env; \
 	cargo install bindgen;
 
