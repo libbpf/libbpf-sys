@@ -13,7 +13,10 @@ fn main() {
     let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     if !cfg!(target_os = "linux") {
-        panic!("cannot compile libbpf-sys on {}", env::var("CARGO_CFG_TARGET_OS").unwrap());
+        panic!(
+            "cannot compile libbpf-sys on {}",
+            env::var("CARGO_CFG_TARGET_OS").unwrap()
+        );
     }
 
     if cfg!(feature = "novendor") {
@@ -39,12 +42,16 @@ fn main() {
         }
 
         if let Err(_) = process::Command::new("pkg-config").status() {
-            panic!("pkg-config is required to compile libbpf-sys using the vendored copy of libbpf");
+            panic!(
+                "pkg-config is required to compile libbpf-sys using the vendored copy of libbpf"
+            );
         }
 
         let compiler = match cc::Build::new().try_get_compiler() {
             Ok(compiler) => compiler,
-            Err(_) => panic!("a C compiler is required to compile libbpf-sys using the vendored copy of libbpf"),
+            Err(_) => panic!(
+                "a C compiler is required to compile libbpf-sys using the vendored copy of libbpf"
+            ),
         };
 
         // create obj_dir if it doesn't exist
@@ -81,14 +88,26 @@ fn main() {
             .out_dir(&out_dir)
             .compile("bindings");
 
-        io::stdout().write_all("cargo:rustc-link-search=native=".as_bytes()).unwrap();
-        io::stdout().write_all(out_dir.as_os_str().as_bytes()).unwrap();
+        io::stdout()
+            .write_all("cargo:rustc-link-search=native=".as_bytes())
+            .unwrap();
+        io::stdout()
+            .write_all(out_dir.as_os_str().as_bytes())
+            .unwrap();
         io::stdout().write_all("\n".as_bytes()).unwrap();
-        io::stdout().write_all("cargo:rustc-link-lib=elf\n".as_bytes()).unwrap();
-        io::stdout().write_all("cargo:rustc-link-lib=z\n".as_bytes()).unwrap();
-        io::stdout().write_all("cargo:rustc-link-lib=static=bpf\n".as_bytes()).unwrap();
+        io::stdout()
+            .write_all("cargo:rustc-link-lib=elf\n".as_bytes())
+            .unwrap();
+        io::stdout()
+            .write_all("cargo:rustc-link-lib=z\n".as_bytes())
+            .unwrap();
+        io::stdout()
+            .write_all("cargo:rustc-link-lib=static=bpf\n".as_bytes())
+            .unwrap();
         io::stdout().write_all("cargo:include=".as_bytes()).unwrap();
-        io::stdout().write_all(out_dir.as_os_str().as_bytes()).unwrap();
+        io::stdout()
+            .write_all(out_dir.as_os_str().as_bytes())
+            .unwrap();
         io::stdout().write_all("/include\n".as_bytes()).unwrap();
     }
 }
