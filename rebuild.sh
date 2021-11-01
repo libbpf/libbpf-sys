@@ -26,13 +26,14 @@ RUN \
 
 RUN \
 	source $HOME/.cargo/env; \
-	cargo install bindgen;
+	cargo install --git https://github.com/rust-lang/rust-bindgen --rev 2aed6b0 bindgen;
 
 ENTRYPOINT \
 	source $HOME/.cargo/env; \
 	bindgen \
 		--verbose \
 		--with-derive-default \
+		--explicit-padding \
 		--whitelist-function "bpf_.+" \
 		--whitelist-function "btf_.+" \
 		--whitelist-function "libbpf_.+" \
