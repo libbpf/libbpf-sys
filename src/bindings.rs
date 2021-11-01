@@ -343,6 +343,7 @@ pub struct bpf_lpm_trie_key {
 pub struct bpf_cgroup_storage_key {
     pub cgroup_inode_id: __u64,
     pub attach_type: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -619,6 +620,7 @@ pub struct bpf_attr__bindgen_ty_1 {
 #[derive(Copy, Clone)]
 pub struct bpf_attr__bindgen_ty_2 {
     pub map_fd: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub key: __u64,
     pub __bindgen_anon_1: bpf_attr__bindgen_ty_2__bindgen_ty_1,
     pub flags: __u64,
@@ -802,12 +804,14 @@ pub struct bpf_attr__bindgen_ty_10 {
     pub attach_flags: __u32,
     pub prog_ids: __u64,
     pub prog_cnt: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_attr__bindgen_ty_11 {
     pub name: __u64,
     pub prog_fd: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -817,6 +821,7 @@ pub struct bpf_attr__bindgen_ty_12 {
     pub btf_size: __u32,
     pub btf_log_size: __u32,
     pub btf_log_level: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -867,6 +872,7 @@ pub union bpf_attr__bindgen_ty_14__bindgen_ty_2 {
 pub struct bpf_attr__bindgen_ty_14__bindgen_ty_2__bindgen_ty_1 {
     pub iter_info: __u64,
     pub iter_info_len: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1516,6 +1522,7 @@ pub struct bpf_map_info {
     pub btf_id: __u32,
     pub btf_key_type_id: __u32,
     pub btf_value_type_id: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1533,6 +1540,7 @@ pub struct bpf_link_info {
     pub type_: __u32,
     pub id: __u32,
     pub prog_id: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub __bindgen_anon_1: bpf_link_info__bindgen_ty_1,
 }
 #[repr(C)]
@@ -1550,6 +1558,7 @@ pub union bpf_link_info__bindgen_ty_1 {
 pub struct bpf_link_info__bindgen_ty_1__bindgen_ty_1 {
     pub tp_name: __u64,
     pub tp_name_len: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1563,6 +1572,7 @@ pub struct bpf_link_info__bindgen_ty_1__bindgen_ty_2 {
 pub struct bpf_link_info__bindgen_ty_1__bindgen_ty_3 {
     pub cgroup_id: __u64,
     pub attach_type: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -1640,6 +1650,7 @@ pub struct bpf_sock_addr {
     pub protocol: __u32,
     pub msg_src_ip4: __u32,
     pub msg_src_ip6: [__u32; 4usize],
+    pub __bindgen_padding_0: [u8; 4usize],
     pub __bindgen_anon_1: bpf_sock_addr__bindgen_ty_1,
 }
 #[repr(C)]
@@ -2297,6 +2308,7 @@ pub struct bpf_create_map_attr {
     pub btf_value_type_id: __u32,
     pub map_ifindex: __u32,
     pub __bindgen_anon_1: bpf_create_map_attr__bindgen_ty_1,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -2396,6 +2408,7 @@ pub struct bpf_load_program_attr {
     pub line_info_cnt: __u32,
     pub log_level: __u32,
     pub prog_flags: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -2617,6 +2630,7 @@ extern "C" {
 pub struct bpf_link_create_opts {
     pub sz: size_t,
     pub flags: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub iter_info: *mut bpf_iter_link_info,
     pub iter_info_len: __u32,
     pub target_btf_id: __u32,
@@ -2685,14 +2699,18 @@ pub struct bpf_prog_test_run_attr {
     pub repeat: ::std::os::raw::c_int,
     pub data_in: *const ::std::os::raw::c_void,
     pub data_size_in: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub data_out: *mut ::std::os::raw::c_void,
     pub data_size_out: __u32,
     pub retval: __u32,
     pub duration: __u32,
+    pub __bindgen_padding_1: [u8; 4usize],
     pub ctx_in: *const ::std::os::raw::c_void,
     pub ctx_size_in: __u32,
+    pub __bindgen_padding_2: [u8; 4usize],
     pub ctx_out: *mut ::std::os::raw::c_void,
     pub ctx_size_out: __u32,
+    pub __bindgen_padding_3: [u8; 4usize],
 }
 impl Default for bpf_prog_test_run_attr {
     fn default() -> Self {
@@ -2796,6 +2814,7 @@ extern "C" {
 pub struct bpf_prog_bind_opts {
     pub sz: size_t,
     pub flags: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 extern "C" {
     pub fn bpf_prog_bind_map(
@@ -2821,6 +2840,7 @@ pub struct bpf_test_run_opts {
     pub duration: __u32,
     pub flags: __u32,
     pub cpu: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 impl Default for bpf_test_run_opts {
     fn default() -> Self {
@@ -3236,6 +3256,7 @@ extern "C" {
 pub struct btf_dedup_opts {
     pub dedup_table_size: ::std::os::raw::c_uint,
     pub dont_resolve_fwds: bool,
+    pub __bindgen_padding_0: [u8; 3usize],
 }
 extern "C" {
     pub fn btf__dedup(
@@ -3291,6 +3312,7 @@ pub struct btf_dump_emit_type_decl_opts {
     pub field_name: *const ::std::os::raw::c_char,
     pub indent_level: ::std::os::raw::c_int,
     pub strip_mods: bool,
+    pub __bindgen_padding_0: [u8; 3usize],
 }
 impl Default for btf_dump_emit_type_decl_opts {
     fn default() -> Self {
@@ -3317,6 +3339,7 @@ pub struct btf_dump_type_data_opts {
     pub compact: bool,
     pub skip_names: bool,
     pub emit_zeroes: bool,
+    pub __bindgen_padding_0: u8,
 }
 impl Default for btf_dump_type_data_opts {
     fn default() -> Self {
@@ -3372,6 +3395,7 @@ extern "C" {
 pub struct bpf_object_open_attr {
     pub file: *const ::std::os::raw::c_char,
     pub prog_type: bpf_prog_type,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 impl Default for bpf_object_open_attr {
     fn default() -> Self {
@@ -3389,8 +3413,10 @@ pub struct bpf_object_open_opts {
     pub object_name: *const ::std::os::raw::c_char,
     pub relaxed_maps: bool,
     pub relaxed_core_relocs: bool,
+    pub __bindgen_padding_0: [u8; 6usize],
     pub pin_root_path: *const ::std::os::raw::c_char,
     pub attach_prog_fd: __u32,
+    pub __bindgen_padding_1: [u8; 4usize],
     pub kconfig: *const ::std::os::raw::c_char,
     pub btf_custom_path: *const ::std::os::raw::c_char,
 }
@@ -3467,6 +3493,7 @@ extern "C" {
 pub struct bpf_object_load_attr {
     pub obj: *mut bpf_object,
     pub log_level: ::std::os::raw::c_int,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub target_btf_path: *const ::std::os::raw::c_char,
 }
 impl Default for bpf_object_load_attr {
@@ -3709,6 +3736,7 @@ pub struct bpf_kprobe_opts {
     pub bpf_cookie: __u64,
     pub offset: ::std::os::raw::c_ulong,
     pub retprobe: bool,
+    pub __bindgen_padding_0: [u8; 7usize],
 }
 extern "C" {
     pub fn bpf_program__attach_kprobe(
@@ -3731,6 +3759,7 @@ pub struct bpf_uprobe_opts {
     pub ref_ctr_offset: size_t,
     pub bpf_cookie: __u64,
     pub retprobe: bool,
+    pub __bindgen_padding_0: [u8; 7usize],
 }
 extern "C" {
     pub fn bpf_program__attach_uprobe(
@@ -3822,6 +3851,7 @@ pub struct bpf_iter_attach_opts {
     pub sz: size_t,
     pub link_info: *mut bpf_iter_link_info,
     pub link_info_len: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 impl Default for bpf_iter_attach_opts {
     fn default() -> Self {
@@ -3843,6 +3873,7 @@ extern "C" {
 pub struct bpf_prog_prep_result {
     pub new_insn_ptr: *mut bpf_insn,
     pub new_insn_cnt: ::std::os::raw::c_int,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub pfd: *mut ::std::os::raw::c_int,
 }
 impl Default for bpf_prog_prep_result {
@@ -4148,6 +4179,7 @@ pub struct bpf_prog_load_attr {
     pub ifindex: ::std::os::raw::c_int,
     pub log_level: ::std::os::raw::c_int,
     pub prog_flags: ::std::os::raw::c_int,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 impl Default for bpf_prog_load_attr {
     fn default() -> Self {
@@ -4181,12 +4213,14 @@ pub struct xdp_link_info {
     pub hw_prog_id: __u32,
     pub skb_prog_id: __u32,
     pub attach_mode: __u8,
+    pub __bindgen_padding_0: [u8; 3usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_xdp_set_link_opts {
     pub sz: size_t,
     pub old_fd: ::std::os::raw::c_int,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 extern "C" {
     pub fn bpf_set_link_xdp_fd(
@@ -4231,6 +4265,7 @@ pub struct bpf_tc_hook {
     pub ifindex: ::std::os::raw::c_int,
     pub attach_point: bpf_tc_attach_point,
     pub parent: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 impl Default for bpf_tc_hook {
     fn default() -> Self {
@@ -4250,6 +4285,7 @@ pub struct bpf_tc_opts {
     pub prog_id: __u32,
     pub handle: __u32,
     pub priority: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 extern "C" {
     pub fn bpf_tc_hook_create(hook: *mut bpf_tc_hook) -> ::std::os::raw::c_int;
@@ -4380,6 +4416,7 @@ pub struct perf_buffer_raw_opts {
     pub event_cb: perf_buffer_event_fn,
     pub ctx: *mut ::std::os::raw::c_void,
     pub cpu_cnt: ::std::os::raw::c_int,
+    pub __bindgen_padding_0: [u8; 4usize],
     pub cpus: *mut ::std::os::raw::c_int,
     pub map_keys: *mut ::std::os::raw::c_int,
 }
@@ -4674,6 +4711,7 @@ pub struct xdp_umem_reg {
     pub chunk_size: __u32,
     pub headroom: __u32,
     pub flags: __u32,
+    pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -4784,6 +4822,7 @@ pub struct xsk_socket_config {
     pub libbpf_flags: __u32,
     pub xdp_flags: __u32,
     pub bind_flags: __u16,
+    pub __bindgen_padding_0: [u8; 2usize],
 }
 extern "C" {
     pub fn xsk_umem__create(
