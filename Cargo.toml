@@ -3,8 +3,8 @@ name = "libbpf-sys"
 version = "0.6.0-1"
 description = "Rust bindings to libbpf from the Linux kernel"
 readme = "README.md"
-repository = "https://github.com/alexforster/libbpf-sys"
-homepage = "https://github.com/alexforster/libbpf-sys"
+repository = "https://github.com/libbpf/libbpf-sys"
+homepage = "https://github.com/libbpf/libbpf-sys"
 keywords = ["bpf", "ebpf", "xdp"]
 authors = [
 	"Alex Forster <alex@alexforster.com>",
@@ -17,7 +17,7 @@ build = "build.rs"
 links = "libbpf"
 
 [badges]
-travis-ci = { repository = "alexforster/libbpf-sys" }
+travis-ci = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
