@@ -42,6 +42,7 @@ ENTRYPOINT \
 		--whitelist-function "perf_buffer_.+" \
 		--whitelist-function "ring_buffer_.+" \
 		--whitelist-type "bpf_.*" \
+		--whitelist-type "btf_.*" \
 		--whitelist-type "xdp_.*" \
 		--whitelist-type "xsk_.*" \
 		--whitelist-var "BPF_.+" \
