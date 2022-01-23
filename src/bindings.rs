@@ -2290,6 +2290,22 @@ impl Default for bpf_sk_lookup {
         }
     }
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct btf_ptr {
+    pub ptr: *mut ::std::os::raw::c_void,
+    pub type_id: __u32,
+    pub flags: __u32,
+}
+impl Default for btf_ptr {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub const BTF_F_COMPACT: ::std::os::raw::c_uint = 1;
 pub const BTF_F_NONAME: ::std::os::raw::c_uint = 2;
 pub const BTF_F_PTR_RAW: ::std::os::raw::c_uint = 4;
@@ -2950,6 +2966,18 @@ extern "C" {
 }
 pub type va_list = __builtin_va_list;
 #[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_header {
+    pub magic: __u16,
+    pub version: __u8,
+    pub flags: __u8,
+    pub hdr_len: __u32,
+    pub type_off: __u32,
+    pub type_len: __u32,
+    pub str_off: __u32,
+    pub str_len: __u32,
+}
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct btf_type {
     pub name_off: __u32,
@@ -3002,6 +3030,32 @@ pub const BTF_KIND_TYPE_TAG: ::std::os::raw::c_uint = 18;
 pub const NR_BTF_KINDS: ::std::os::raw::c_uint = 19;
 pub const BTF_KIND_MAX: ::std::os::raw::c_uint = 18;
 pub type _bindgen_ty_80 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_enum {
+    pub name_off: __u32,
+    pub val: __s32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_array {
+    pub type_: __u32,
+    pub index_type: __u32,
+    pub nelems: __u32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_member {
+    pub name_off: __u32,
+    pub type_: __u32,
+    pub offset: __u32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_param {
+    pub name_off: __u32,
+    pub type_: __u32,
+}
 pub const BTF_VAR_STATIC: ::std::os::raw::c_uint = 0;
 pub const BTF_VAR_GLOBAL_ALLOCATED: ::std::os::raw::c_uint = 1;
 pub const BTF_VAR_GLOBAL_EXTERN: ::std::os::raw::c_uint = 2;
@@ -3010,6 +3064,23 @@ pub const BTF_FUNC_STATIC: btf_func_linkage = 0;
 pub const BTF_FUNC_GLOBAL: btf_func_linkage = 1;
 pub const BTF_FUNC_EXTERN: btf_func_linkage = 2;
 pub type btf_func_linkage = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_var {
+    pub linkage: __u32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_var_secinfo {
+    pub type_: __u32,
+    pub offset: __u32,
+    pub size: __u32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct btf_decl_tag {
+    pub component_idx: __s32,
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct btf {
