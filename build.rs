@@ -1,5 +1,6 @@
 // build.rs
 
+use bindgen;
 use std::env;
 use std::fs;
 use std::io;
@@ -18,6 +19,40 @@ fn main() {
             env::var("CARGO_CFG_TARGET_OS").unwrap()
         );
     }
+
+    let _ = bindgen::Builder::default()
+        .derive_default(true)
+        .explicit_padding(true)
+        .default_enum_style(bindgen::EnumVariation::Consts)
+        .prepend_enum_name(false)
+        .layout_tests(false)
+        .generate_comments(false)
+        .emit_builtins()
+        .allowlist_function("bpf_.+")
+        .allowlist_function("btf_.+")
+        .allowlist_function("libbpf_.+")
+        .allowlist_function("xsk_.+")
+        .allowlist_function("_xsk_.+")
+        .allowlist_function("perf_buffer_.+")
+        .allowlist_function("ring_buffer_.+")
+        .allowlist_type("bpf_.*")
+        .allowlist_type("btf_.*")
+        .allowlist_type("xdp_.*")
+        .allowlist_type("xsk_.*")
+        .allowlist_var("BPF_.+")
+        .allowlist_var("BTF_.+")
+        .allowlist_var("XSK_.+")
+        .allowlist_var("XDP_.+")
+        .header("bindings.h")
+        .clang_arg(format!("-I{}", src_dir.join("libbpf/include").display()))
+        .clang_arg(format!(
+            "-I{}",
+            src_dir.join("libbpf/include/uapi").display()
+        ))
+        .generate()
+        .expect("Unable to generate bindings")
+        .write_to_file(&src_dir.join("src/bindings.rs"))
+        .expect("Couldn't write bindings");
 
     if cfg!(feature = "novendor") {
         let libbpf = pkg_config::Config::new()

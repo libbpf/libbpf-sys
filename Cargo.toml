@@ -21,6 +21,7 @@ travis-ci = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
+bindgen = "0.59.2"
 cc = "^1.0"
 pkg-config = "0.3"
 
