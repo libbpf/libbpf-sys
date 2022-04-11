@@ -9,11 +9,11 @@ _libbpf-sys_ is the packaged result of using _bindgen_ to automatically generate
 
 **Warning:** this crate does not provide a high-level or "safe" API wrapper around _libbpf_. If you are looking for an easier way to use _libbpf_, check out these other crates that implement higher-level APIs using _libbpf-sys_...
 
- * **afxdp:** a Rust interface for AF_XDP – [GitHub](https://github.com/aterlo/afxdp-rs) | [Crates.io](https://crates.io/crates/afxdp)
- * **libbpf-cargo:** Cargo plugin to build bpf programs – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-cargo)
+ * **afxdp:** a Rust interface for AF_XDP – [GitHub](https://github.com/aterlo/afxdp-rs) | [Crates.io](https://crates.io/crates/afxdp)
+ * **libbpf-cargo:** Cargo plugin to build bpf programs – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-cargo)
  * **libbpf-rs:** a safe, idiomatic, and opinionated wrapper around libbpf-sys – [GitHub](https://github.com/libbpf/libbpf-rs) | [Crates.io](https://crates.io/crates/libbpf-rs)
- * **rebpf:** write and load eBPF programs in Rust – [GitHub](https://github.com/uccidibuti/rebpf) | [Crates.io](https://crates.io/crates/rebpf)
- * **xsk-rs:** a Rust interface for Linux AF_XDP sockets – [Github](https://github.com/DouglasGray/xsk-rs) | [Crates.io](https://crates.io/crates/xsk-rs)
+ * **rebpf:** write and load eBPF programs in Rust – [GitHub](https://github.com/uccidibuti/rebpf) | [Crates.io](https://crates.io/crates/rebpf)
+ * **xsk-rs:** a Rust interface for Linux AF_XDP sockets – [Github](https://github.com/DouglasGray/xsk-rs) | [Crates.io](https://crates.io/crates/xsk-rs)
 
 The community is encouraged to build higher-level crates using _libbpf-sys_. Please let me know if you do!
 
@@ -27,13 +27,13 @@ When you add this crate as a dependency to your project, your resulting binaries
 
 ### Versioning
 
-Because the API of this crate is automatically generated from _libbpf_ sources, it uses a versioning scheme based on the version of _libbpf_ that it provides.
+Because the API of this crate is automatically generated from _libbpf_ sources, it uses a versioning scheme based on the version of _libbpf_ that it provides.
 
-The "Major.Minor.Patch" semver numbers correspond exactly to the _libbpf_ version that each release provides. For example, the `0.0.8-1` release of this crate provides the API for the _libbpf v0.0.8_ release.
+The "Major.Minor" semver numbers correspond exactly to the _libbpf_ version that each release provides. For example, the `0.6.x` releases of this crate provides the API for the _libbpf v0.6.x_ releases.
 
-In order to allow for human error, all releases have a "pre-release" version number appended to them. For example, both the `0.0.6-1` and `0.0.6-2` releases of this crate contain bindings to _libbpf v0.0.6_, but the later release contains bugfixes and/or enhancements to the crate itself.
+In order to allow for human error, the "Patch" semver number is used by this crate and does not necessarily match the provided _libbpf_ version. For example, both the `0.6.1` and `0.6.2` releases of this crate contain bindings to _libbpf v0.6.1_, but the later release contains bugfixes and/or enhancements to the crate itself.
 
-**Note:** because this crate uses a "pre-release" version number, it is impossible to use wildcard-style version syntax in your `Cargo.toml` file. You must specify the exact version of `libbpf-sys`, and you must not assume that any other version will be API or ABI compatible.
+The exact version of _libbpf_ that is provided by any given release can be found in the "Build Metadata" semver section, which comes after the `+` in the version string. For example, `0.6.2+v0.6.1` indicates that the crate version is `0.6.2` and the upstream _libbpf_ version is `v0.6.1`.
 
 ### Licensing and Dependencies
 
