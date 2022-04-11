@@ -10,6 +10,35 @@ use std::process;
 
 #[cfg(feature = "bindgen")]
 fn generate_bindings(src_dir: path::PathBuf) {
+    use std::collections::HashSet;
+
+    #[derive(Debug)]
+    struct IgnoreMacros(HashSet<&'static str>);
+
+    impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
+        fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
+            if self.0.contains(name) {
+                bindgen::callbacks::MacroParsingBehavior::Ignore
+            } else {
+                bindgen::callbacks::MacroParsingBehavior::Default
+            }
+        }
+    }
+
+    let ignored_macros = IgnoreMacros(
+        vec![
+            "BTF_KIND_FUNC",
+            "BTF_KIND_FUNC_PROTO",
+            "BTF_KIND_VAR",
+            "BTF_KIND_DATASEC",
+            "BTF_KIND_FLOAT",
+            "BTF_KIND_DECL_TAG",
+            "BTF_KIND_TYPE_TAG",
+        ]
+        .into_iter()
+        .collect(),
+    );
+
     bindgen::Builder::default()
         .derive_default(true)
         .explicit_padding(true)
@@ -34,6 +63,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_var("BTF_.+")
         .allowlist_var("XSK_.+")
         .allowlist_var("XDP_.+")
+        .parse_callbacks(Box::new(ignored_macros))
         .header("bindings.h")
         .clang_arg(format!("-I{}", src_dir.join("libbpf/include").display()))
         .clang_arg(format!(
