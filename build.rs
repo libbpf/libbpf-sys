@@ -1,6 +1,5 @@
 // build.rs
 
-use bindgen;
 use std::env;
 use std::fs;
 use std::io;
@@ -9,18 +8,9 @@ use std::os::unix::prelude::*;
 use std::path;
 use std::process;
 
-fn main() {
-    let src_dir = path::PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
-
-    if !cfg!(target_os = "linux") {
-        panic!(
-            "cannot compile libbpf-sys on {}",
-            env::var("CARGO_CFG_TARGET_OS").unwrap()
-        );
-    }
-
-    let _ = bindgen::Builder::default()
+#[cfg(feature = "bindgen")]
+fn generate_bindings(src_dir: path::PathBuf) {
+    bindgen::Builder::default()
         .derive_default(true)
         .explicit_padding(true)
         .default_enum_style(bindgen::EnumVariation::Consts)
@@ -53,6 +43,16 @@ fn main() {
         .expect("Unable to generate bindings")
         .write_to_file(&src_dir.join("src/bindings.rs"))
         .expect("Couldn't write bindings");
+}
+
+#[cfg(not(feature = "bindgen"))]
+fn generate_bindings(_: path::PathBuf) {}
+
+fn main() {
+    let src_dir = path::PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
+
+    generate_bindings(src_dir.clone());
 
     if cfg!(feature = "novendor") {
         let libbpf = pkg_config::Config::new()

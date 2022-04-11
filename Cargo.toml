@@ -21,7 +21,7 @@ travis-ci = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
-bindgen = "0.59.2"
+bindgen = { version = "^0.59", optional = true }
 cc = "^1.0"
 pkg-config = "0.3"
 
@@ -29,6 +29,4 @@ pkg-config = "0.3"
 crate-type = ["lib", "staticlib"]
 
 [features]
-# When turned on, link against system-installed libbpf instead of building
-# and linking against vendored libbpf sources
 novendor = []
