@@ -2965,6 +2965,7 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 pub type va_list = __builtin_va_list;
+pub type __gnuc_va_list = __builtin_va_list;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_header {
@@ -3612,6 +3613,13 @@ extern "C" {
         data: *const ::std::os::raw::c_void,
         data_sz: size_t,
         opts: *const btf_dump_type_data_opts,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn vdprintf(
+        __fd: ::std::os::raw::c_int,
+        __fmt: *const ::std::os::raw::c_char,
+        __arg: *mut __va_list_tag,
     ) -> ::std::os::raw::c_int;
 }
 pub type pid_t = __pid_t;

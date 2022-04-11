@@ -25,6 +25,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_function("_xsk_.+")
         .allowlist_function("perf_buffer_.+")
         .allowlist_function("ring_buffer_.+")
+        .allowlist_function("vdprintf")
         .allowlist_type("bpf_.*")
         .allowlist_type("btf_.*")
         .allowlist_type("xdp_.*")
