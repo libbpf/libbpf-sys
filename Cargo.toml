@@ -30,3 +30,4 @@ crate-type = ["lib", "staticlib"]
 
 [features]
 novendor = []
+static = []
