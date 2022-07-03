@@ -83,6 +83,16 @@ fn generate_bindings(src_dir: path::PathBuf) {
 #[cfg(not(feature = "bindgen"))]
 fn generate_bindings(_: path::PathBuf) {}
 
+#[cfg(feature = "static")]
+fn library_prefix() -> String {
+    "static=".to_string()
+}
+
+#[cfg(not(feature = "static"))]
+fn library_prefix() -> String {
+    "".to_string()
+}
+
 fn main() {
     let src_dir = path::PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
     let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
@@ -166,14 +176,15 @@ fn main() {
             .unwrap();
         io::stdout().write_all("\n".as_bytes()).unwrap();
         io::stdout()
-            .write_all("cargo:rustc-link-lib=elf\n".as_bytes())
+            .write_all(format!("cargo:rustc-link-lib={}elf\n", library_prefix()).as_bytes())
             .unwrap();
         io::stdout()
-            .write_all("cargo:rustc-link-lib=z\n".as_bytes())
+            .write_all(format!("cargo:rustc-link-lib={}z\n", library_prefix()).as_bytes())
             .unwrap();
         io::stdout()
             .write_all("cargo:rustc-link-lib=static=bpf\n".as_bytes())
             .unwrap();
+
         io::stdout().write_all("cargo:include=".as_bytes()).unwrap();
         io::stdout()
             .write_all(out_dir.as_os_str().as_bytes())
