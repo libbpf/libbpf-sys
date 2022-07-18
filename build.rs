@@ -62,6 +62,8 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_type("xsk_.+")
         .allowlist_type("perf_event_.+")
         .allowlist_type("perf_sample_.+")
+        .allowlist_type("perf_type_id")
+        .allowlist_type("perf_sw_ids")
         .allowlist_var("BPF_.+")
         .allowlist_var("BTF_.+")
         .allowlist_var("XSK_.+")
