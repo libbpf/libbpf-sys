@@ -34,6 +34,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
             "BTF_KIND_FLOAT",
             "BTF_KIND_DECL_TAG",
             "BTF_KIND_TYPE_TAG",
+            "BTF_KIND_ENUM64",
         ]
         .into_iter()
         .collect(),
@@ -50,19 +51,15 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_function("bpf_.+")
         .allowlist_function("btf_.+")
         .allowlist_function("libbpf_.+")
-        .allowlist_function("xsk_.+")
-        .allowlist_function("_xsk_.+")
         .allowlist_function("perf_.+")
         .allowlist_function("ring_buffer_.+")
         .allowlist_function("vdprintf")
         .allowlist_type("bpf_.+")
         .allowlist_type("btf_.+")
         .allowlist_type("xdp_.+")
-        .allowlist_type("xsk_.+")
         .allowlist_type("perf_.+")
         .allowlist_var("BPF_.+")
         .allowlist_var("BTF_.+")
-        .allowlist_var("XSK_.+")
         .allowlist_var("XDP_.+")
         .allowlist_var("PERF_.+")
         .parse_callbacks(Box::new(ignored_macros))
