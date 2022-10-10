@@ -5190,12 +5190,15 @@ pub struct bpf_object_open_opts {
     pub relaxed_maps: bool,
     pub __bindgen_padding_0: [u8; 7usize],
     pub pin_root_path: *const ::std::os::raw::c_char,
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
+    pub __bindgen_padding_1: [u8; 4usize],
     pub kconfig: *const ::std::os::raw::c_char,
     pub btf_custom_path: *const ::std::os::raw::c_char,
     pub kernel_log_buf: *mut ::std::os::raw::c_char,
     pub kernel_log_size: size_t,
     pub kernel_log_level: __u32,
-    pub __bindgen_padding_1: [u8; 4usize],
+    pub __bindgen_padding_2: [u8; 4usize],
 }
 impl Default for bpf_object_open_opts {
     fn default() -> Self {
@@ -5204,6 +5207,13 @@ impl Default for bpf_object_open_opts {
             ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
             s.assume_init()
         }
+    }
+}
+impl bpf_object_open_opts {
+    #[inline]
+    pub fn new_bitfield_1() -> __BindgenBitfieldUnit<[u8; 4usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
+        __bindgen_bitfield_unit
     }
 }
 extern "C" {
