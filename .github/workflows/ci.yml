@@ -120,3 +120,43 @@ jobs:
 
       - run: cargo test --features "${{ matrix.features }}"
         shell: alpine.sh {0}
+
+  publish:
+    name: Publish to crates.io
+    if: github.ref_type == 'tag' && github.event_name != 'pull_request'
+    needs:
+      - test-gnu
+      - test-musl
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          profile: minimal
+          toolchain: stable
+
+      # This is needed for cargo-pkgid.
+      - name: Fetch dependencies and generate Cargo.lock
+        run: cargo fetch
+
+      - name: Resolve crate version and check git tag name
+        run: |
+          crate_version="$(cargo pkgid | cut -d '#' -f2 | grep -o '[^:]*$')"
+          git_tag=${GITHUB_REF#refs/tags/}
+
+          if [ "$git_tag" != "$crate_version" ]; then
+              printf '::error::%s\n' "Crate version ($crate_version) does not match git tag ($git_tag)"
+              exit 1
+          fi
+
+      - name: Publish to crates.io
+        # no-verify is to skip building; it has been already verified in the test-* jobs.
+        run: cargo publish --no-verify --verbose
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
