@@ -94,6 +94,9 @@ fn main() {
     generate_bindings(src_dir.clone());
 
     if cfg!(feature = "novendor") {
+        io::stdout()
+            .write_all(format!("cargo:rustc-link-lib={}bpf\n", library_prefix()).as_bytes())
+            .unwrap();
         return;
     }
 
