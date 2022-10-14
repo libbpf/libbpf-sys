@@ -1,0 +1,122 @@
+name: CI
+on:
+  - push
+  - pull_request
+
+jobs:
+  test-gnu:
+    # dynamically linked glibc
+    name: Test on Ubuntu ${{ matrix.os-arch }} (${{ matrix.features }})
+    strategy:
+      matrix:
+        include:
+          - rust-target: x86_64-unknown-linux-gnu
+            os-target: x86_64-linux-gnu
+            os-arch: amd64
+            features: ''
+
+          - rust-target: x86_64-unknown-linux-gnu
+            os-target: x86_64-linux-gnu
+            os-arch: amd64
+            features: novendor
+
+          - rust-target: aarch64-unknown-linux-gnu
+            os-target: aarch64-linux-gnu
+            os-arch: arm64
+            features: ''
+
+          - rust-target: powerpc64le-unknown-linux-gnu
+            os-target: powerpc64le-linux-gnu
+            os-arch: ppc64el
+            features: ''
+    runs-on: ubuntu-latest
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
+      CARGO_TERM_VERBOSE: 'true'
+      RUSTFLAGS: -C linker=/usr/bin/${{ matrix.os-target }}-gcc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Add apt sources for ${{ matrix.os-arch }}
+        if: matrix.os-arch != 'amd64'
+        run: |
+          dpkg --add-architecture ${{ matrix.os-arch }}
+
+          release=$(. /etc/os-release && echo "$UBUNTU_CODENAME")
+          sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
+          printf 'deb [arch=${{ matrix.os-arch }}] http://ports.ubuntu.com/ %s main restricted\n' \
+              $release $release-updates $release-security \
+              >> /etc/apt/sources.list
+        shell: sudo sh -e {0}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+              build-essential \
+              libelf-dev:${{ matrix.os-arch }} \
+              linux-headers-generic:${{ matrix.os-arch }} \
+              zlib1g-dev:${{ matrix.os-arch }}
+
+      - name: Install libbpf-dev
+        if: matrix.features == 'novendor'
+        run: sudo apt-get install libbpf-dev:${{ matrix.os-arch }}
+
+      - name: Install linker for ${{ matrix.os-target }}
+        if: matrix.os-arch != 'amd64'
+        run: sudo apt-get install gcc-${{ matrix.os-target }}
+
+      - name: Install Rust stable for ${{ matrix.rust-target }}
+        uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          profile: minimal
+          target: ${{ matrix.rust-target }}
+          toolchain: stable
+
+      - run: cargo build --features "${{ matrix.features }}"
+
+      - run: cargo test --features "${{ matrix.features }}"
+        if: matrix.os-arch == 'amd64'
+
+  test-musl:
+    # dynamically linked musl libc
+    name: Test on Alpine Linux x86_64 (${{ matrix.features }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features:
+          - ''
+          - novendor
+    env:
+      CARGO_TERM_VERBOSE: 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Alpine Linux with dependencies
+        uses: jirutka/setup-alpine@v1
+        with:
+          branch: latest-stable
+          packages: >
+            build-base
+            cargo
+            elfutils-dev
+            linux-headers
+            zlib-dev
+
+      - name: Install libbpf-dev
+        if: matrix.features == 'novendor'
+        run: apk add libbpf-dev
+        shell: alpine.sh --root {0}
+
+      - run: cargo build --features "${{ matrix.features }}"
+        shell: alpine.sh {0}
+
+      - run: cargo test --features "${{ matrix.features }}"
+        shell: alpine.sh {0}

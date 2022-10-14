@@ -17,7 +17,7 @@ build = "build.rs"
 links = "libbpf"
 
 [badges]
-travis-ci = { repository = "libbpf/libbpf-sys" }
+github = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
