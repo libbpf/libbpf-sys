@@ -1,9 +1,0 @@
-os: linux
-dist: bionic
-
-language: rust
-rust:
-  - stable
-
-before_install:
-  - sudo apt-get -y install curl build-essential linux-headers-generic zlib1g-dev libelf-dev libclang-dev llvm clang
