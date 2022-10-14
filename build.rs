@@ -94,9 +94,7 @@ fn main() {
     generate_bindings(src_dir.clone());
 
     if cfg!(feature = "novendor") {
-        io::stdout()
-            .write_all(format!("cargo:rustc-link-lib={}bpf\n", library_prefix()).as_bytes())
-            .unwrap();
+        println!("cargo:rustc-link-lib={}bpf\n", library_prefix());
         return;
     }
 
@@ -144,26 +142,9 @@ fn main() {
 
     assert!(status.success(), "make failed");
 
-    io::stdout()
-        .write_all("cargo:rustc-link-search=native=".as_bytes())
-        .unwrap();
-    io::stdout()
-        .write_all(out_dir.as_os_str().as_bytes())
-        .unwrap();
-    io::stdout().write_all("\n".as_bytes()).unwrap();
-    io::stdout()
-        .write_all(format!("cargo:rustc-link-lib={}elf\n", library_prefix()).as_bytes())
-        .unwrap();
-    io::stdout()
-        .write_all(format!("cargo:rustc-link-lib={}z\n", library_prefix()).as_bytes())
-        .unwrap();
-    io::stdout()
-        .write_all("cargo:rustc-link-lib=static=bpf\n".as_bytes())
-        .unwrap();
-
-    io::stdout().write_all("cargo:include=".as_bytes()).unwrap();
-    io::stdout()
-        .write_all(out_dir.as_os_str().as_bytes())
-        .unwrap();
-    io::stdout().write_all("/include\n".as_bytes()).unwrap();
+    println!("cargo:rustc-link-search=native={}", out_dir.to_string_lossy());
+    println!("cargo:rustc-link-lib={}elf", library_prefix());
+    println!("cargo:rustc-link-lib={}z", library_prefix());
+    println!("cargo:rustc-link-lib=static=bpf");
+    println!("cargo:include={}/include", out_dir.to_string_lossy());
 }
