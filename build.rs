@@ -147,4 +147,10 @@ fn main() {
     println!("cargo:rustc-link-lib={}z", library_prefix());
     println!("cargo:rustc-link-lib=static=bpf");
     println!("cargo:include={}/include", out_dir.to_string_lossy());
+
+    if let Ok(ld_path) = env::var("LD_LIBRARY_PATH") {
+        for path in ld_path.split(":") {
+            println!("cargo:rustc-link-search=native={}", path);
+        }
+    }
 }
