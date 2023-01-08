@@ -2,9 +2,6 @@
 
 use std::env;
 use std::fs;
-use std::io;
-use std::io::prelude::*;
-use std::os::unix::prelude::*;
 use std::path;
 use std::process;
 
@@ -142,7 +139,10 @@ fn main() {
 
     assert!(status.success(), "make failed");
 
-    println!("cargo:rustc-link-search=native={}", out_dir.to_string_lossy());
+    println!(
+        "cargo:rustc-link-search=native={}",
+        out_dir.to_string_lossy()
+    );
     println!("cargo:rustc-link-lib={}elf", library_prefix());
     println!("cargo:rustc-link-lib={}z", library_prefix());
     println!("cargo:rustc-link-lib=static=bpf");
