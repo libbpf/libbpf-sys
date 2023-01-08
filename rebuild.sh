@@ -5,7 +5,7 @@ DOCKER="docker"
 set -eu -o pipefail
 
 ${DOCKER} build -t libbpf-sys-builder - <<'EOF'
-FROM amd64/ubuntu:focal AS libbpf-sys-builder
+FROM amd64/ubuntu:jammy AS libbpf-sys-builder
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
@@ -18,7 +18,7 @@ SHELL ["/bin/bash", "-eu", "-o", "pipefail", "-c"]
 RUN \
 	export DEBIAN_FRONTEND=noninteractive; \
 	apt-get -q update; \
-	apt-get -q install -y curl build-essential linux-headers-generic zlib1g-dev libelf-dev libclang-dev llvm clang pkg-config; \
+	apt-get -q install -y curl build-essential zlib1g-dev libelf-dev libclang-dev llvm clang pkg-config; \
 	apt-get -q clean autoclean;
 
 RUN \
