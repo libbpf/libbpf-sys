@@ -21,6 +21,22 @@ The community is encouraged to build higher-level crates using _libbpf-sys_. Ple
 
 As part of the `cargo build` process, an included copy of _libbpf_ is compiled and statically linked into the resulting binary. This means that, in order to build a project that depends on this crate, your system must provide a working C compiler toolchain (GCC and Clang should both work). Additionally, your system must provide development headers for _zlib_ and _libelf_, and they must be discoverable via _pkgconfig_.
 
+Building on a fresh Debian/Ubuntu installation:
+
+```sh
+$ apt-get install git rustc cargo build-essential pkgconf zlib1g-dev libelf-dev
+$ git clone --recurse-submodules https://github.com/libbpf/libbpf-sys.git && cd libbpf-sys
+$ cargo build
+```
+
+Building on a fresh RHEL/Fedora installation:
+
+```sh
+$ yum install git rust cargo gcc make pkgconf zlib-devel elfutils-libelf-devel
+$ git clone --recurse-submodules https://github.com/libbpf/libbpf-sys.git && cd libbpf-sys
+$ cargo build
+```
+
 ### Distribution
 
 When you add this crate as a dependency to your project, your resulting binaries will dynamically link with `libz` and `libelf`. This means that the systems where you run your binaries must have these libraries installed.
