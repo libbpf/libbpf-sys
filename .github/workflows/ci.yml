@@ -58,7 +58,6 @@ jobs:
           sudo apt-get install \
               build-essential \
               libelf-dev:${{ matrix.os-arch }} \
-              linux-headers-generic:${{ matrix.os-arch }} \
               zlib1g-dev:${{ matrix.os-arch }}
 
       - name: Install libbpf-dev
