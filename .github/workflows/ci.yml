@@ -1,7 +1,5 @@
 name: CI
-on:
-  - push
-  - pull_request
+on: push
 
 jobs:
   test-gnu:
@@ -122,7 +120,7 @@ jobs:
 
   publish:
     name: Publish to crates.io
-    if: github.ref_type == 'tag' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
     needs:
       - test-gnu
       - test-musl
