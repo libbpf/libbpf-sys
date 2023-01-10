@@ -67,12 +67,9 @@ jobs:
         run: sudo apt-get install gcc-${{ matrix.os-target }}
 
       - name: Install Rust stable for ${{ matrix.rust-target }}
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          override: true
-          profile: minimal
-          target: ${{ matrix.rust-target }}
-          toolchain: stable
+          targets: ${{ matrix.rust-target }}
 
       - run: cargo build --features "${{ matrix.features }}"
 
@@ -132,11 +129,9 @@ jobs:
           submodules: recursive
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          override: true
-          profile: minimal
-          toolchain: stable
+          targets: ${{ matrix.rust-target }}
 
       # This is needed for cargo-pkgid.
       - name: Fetch dependencies and generate Cargo.lock
