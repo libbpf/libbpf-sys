@@ -41,6 +41,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .derive_default(true)
         .explicit_padding(true)
         .default_enum_style(bindgen::EnumVariation::Consts)
+        .size_t_is_usize(false)
         .prepend_enum_name(false)
         .layout_tests(false)
         .generate_comments(false)
