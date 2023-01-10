@@ -317,6 +317,7 @@ pub const BTF_INT_CHAR: u32 = 2;
 pub const BTF_INT_BOOL: u32 = 4;
 pub const BTF_ELF_SEC: &[u8; 5usize] = b".BTF\0";
 pub const BTF_EXT_ELF_SEC: &[u8; 9usize] = b".BTF.ext\0";
+pub type size_t = ::std::os::raw::c_ulong;
 pub type __pid_t = ::std::os::raw::c_int;
 pub type __u8 = ::std::os::raw::c_uchar;
 pub type __s16 = ::std::os::raw::c_short;
@@ -4243,12 +4244,12 @@ extern "C" {
     ) -> *const ::std::os::raw::c_void;
 }
 extern "C" {
-    pub fn libbpf_set_memlock_rlim(memlock_bytes: usize) -> ::std::os::raw::c_int;
+    pub fn libbpf_set_memlock_rlim(memlock_bytes: size_t) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_map_create_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub btf_fd: __u32,
     pub btf_key_type_id: __u32,
     pub btf_value_type_id: __u32,
@@ -4272,7 +4273,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_prog_load_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub attempts: ::std::os::raw::c_int,
     pub expected_attach_type: bpf_attach_type,
     pub prog_btf_fd: __u32,
@@ -4309,14 +4310,14 @@ extern "C" {
         prog_name: *const ::std::os::raw::c_char,
         license: *const ::std::os::raw::c_char,
         insns: *const bpf_insn,
-        insn_cnt: usize,
+        insn_cnt: size_t,
         opts: *const bpf_prog_load_opts,
     ) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_btf_load_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub log_buf: *mut ::std::os::raw::c_char,
     pub log_level: __u32,
     pub log_size: __u32,
@@ -4333,7 +4334,7 @@ impl Default for bpf_btf_load_opts {
 extern "C" {
     pub fn bpf_btf_load(
         btf_data: *const ::std::os::raw::c_void,
-        btf_size: usize,
+        btf_size: size_t,
         opts: *const bpf_btf_load_opts,
     ) -> ::std::os::raw::c_int;
 }
@@ -4401,7 +4402,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_map_batch_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub elem_flags: __u64,
     pub flags: __u64,
 }
@@ -4447,7 +4448,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_obj_get_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub file_flags: __u32,
     pub __bindgen_padding_0: [u8; 4usize],
 }
@@ -4469,7 +4470,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_prog_attach_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub flags: ::std::os::raw::c_uint,
     pub replace_prog_fd: ::std::os::raw::c_int,
 }
@@ -4505,7 +4506,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_link_create_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub flags: __u32,
     pub __bindgen_padding_0: [u8; 4usize],
     pub iter_info: *mut bpf_iter_link_info,
@@ -4580,7 +4581,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_link_update_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub flags: __u32,
     pub old_prog_fd: __u32,
 }
@@ -4638,7 +4639,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_get_fd_by_id_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub open_flags: __u32,
     pub __bindgen_padding_0: [u8; 4usize],
 }
@@ -4688,7 +4689,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_prog_query_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub query_flags: __u32,
     pub attach_flags: __u32,
     pub prog_ids: *mut __u32,
@@ -4747,7 +4748,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_prog_bind_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub flags: __u32,
     pub __bindgen_padding_0: [u8; 4usize],
 }
@@ -4761,7 +4762,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_test_run_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub data_in: *const ::std::os::raw::c_void,
     pub data_out: *mut ::std::os::raw::c_void,
     pub data_size_in: __u32,
@@ -5010,10 +5011,10 @@ extern "C" {
     pub fn btf__type_by_id(btf: *const btf, id: __u32) -> *const btf_type;
 }
 extern "C" {
-    pub fn btf__pointer_size(btf: *const btf) -> usize;
+    pub fn btf__pointer_size(btf: *const btf) -> size_t;
 }
 extern "C" {
-    pub fn btf__set_pointer_size(btf: *mut btf, ptr_sz: usize) -> ::std::os::raw::c_int;
+    pub fn btf__set_pointer_size(btf: *mut btf, ptr_sz: size_t) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn btf__endianness(btf: *const btf) -> btf_endianness;
@@ -5077,7 +5078,7 @@ extern "C" {
     pub fn btf__add_int(
         btf: *mut btf,
         name: *const ::std::os::raw::c_char,
-        byte_sz: usize,
+        byte_sz: size_t,
         encoding: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
@@ -5085,7 +5086,7 @@ extern "C" {
     pub fn btf__add_float(
         btf: *mut btf,
         name: *const ::std::os::raw::c_char,
-        byte_sz: usize,
+        byte_sz: size_t,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -5250,7 +5251,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct btf_dedup_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub btf_ext: *mut btf_ext,
     pub force_collisions: bool,
     pub __bindgen_padding_0: [u8; 7usize],
@@ -5275,7 +5276,7 @@ pub struct btf_dump {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_dump_opts {
-    pub sz: usize,
+    pub sz: size_t,
 }
 pub type btf_dump_printf_fn_t = ::std::option::Option<
     unsafe extern "C" fn(
@@ -5301,7 +5302,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct btf_dump_emit_type_decl_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub field_name: *const ::std::os::raw::c_char,
     pub indent_level: ::std::os::raw::c_int,
     pub strip_mods: bool,
@@ -5326,7 +5327,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct btf_dump_type_data_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub indent_str: *const ::std::os::raw::c_char,
     pub indent_level: ::std::os::raw::c_int,
     pub compact: bool,
@@ -5348,7 +5349,7 @@ extern "C" {
         d: *mut btf_dump,
         id: __u32,
         data: *const ::std::os::raw::c_void,
-        data_sz: usize,
+        data_sz: size_t,
         opts: *const btf_dump_type_data_opts,
     ) -> ::std::os::raw::c_int;
 }
@@ -5373,7 +5374,7 @@ extern "C" {
     pub fn libbpf_strerror(
         err: ::std::os::raw::c_int,
         buf: *mut ::std::os::raw::c_char,
-        size: usize,
+        size: size_t,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -5405,7 +5406,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_object_open_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub object_name: *const ::std::os::raw::c_char,
     pub relaxed_maps: bool,
     pub __bindgen_padding_0: [u8; 7usize],
@@ -5416,7 +5417,7 @@ pub struct bpf_object_open_opts {
     pub kconfig: *const ::std::os::raw::c_char,
     pub btf_custom_path: *const ::std::os::raw::c_char,
     pub kernel_log_buf: *mut ::std::os::raw::c_char,
-    pub kernel_log_size: usize,
+    pub kernel_log_size: size_t,
     pub kernel_log_level: __u32,
     pub __bindgen_padding_2: [u8; 4usize],
 }
@@ -5448,7 +5449,7 @@ extern "C" {
 extern "C" {
     pub fn bpf_object__open_mem(
         obj_buf: *const ::std::os::raw::c_void,
-        obj_buf_sz: usize,
+        obj_buf_sz: size_t,
         opts: *const bpf_object_open_opts,
     ) -> *mut bpf_object;
 }
@@ -5574,11 +5575,11 @@ extern "C" {
     pub fn bpf_program__set_insns(
         prog: *mut bpf_program,
         new_insns: *mut bpf_insn,
-        new_insn_cnt: usize,
+        new_insn_cnt: size_t,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn bpf_program__insn_cnt(prog: *const bpf_program) -> usize;
+    pub fn bpf_program__insn_cnt(prog: *const bpf_program) -> size_t;
 }
 extern "C" {
     pub fn bpf_program__fd(prog: *const bpf_program) -> ::std::os::raw::c_int;
@@ -5642,7 +5643,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_perf_event_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub bpf_cookie: __u64,
 }
 extern "C" {
@@ -5661,9 +5662,9 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_kprobe_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub bpf_cookie: __u64,
-    pub offset: usize,
+    pub offset: size_t,
     pub retprobe: bool,
     pub __bindgen_padding_0: [u8; 7usize],
 }
@@ -5684,11 +5685,11 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_kprobe_multi_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub syms: *mut *const ::std::os::raw::c_char,
     pub addrs: *const ::std::os::raw::c_ulong,
     pub cookies: *const __u64,
-    pub cnt: usize,
+    pub cnt: size_t,
     pub retprobe: bool,
     pub __bindgen_padding_0: [u8; 7usize],
 }
@@ -5711,7 +5712,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_ksyscall_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub bpf_cookie: __u64,
     pub retprobe: bool,
     pub __bindgen_padding_0: [u8; 7usize],
@@ -5726,8 +5727,8 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_uprobe_opts {
-    pub sz: usize,
-    pub ref_ctr_offset: usize,
+    pub sz: size_t,
+    pub ref_ctr_offset: size_t,
     pub bpf_cookie: __u64,
     pub retprobe: bool,
     pub __bindgen_padding_0: [u8; 7usize],
@@ -5748,7 +5749,7 @@ extern "C" {
         retprobe: bool,
         pid: pid_t,
         binary_path: *const ::std::os::raw::c_char,
-        func_offset: usize,
+        func_offset: size_t,
     ) -> *mut bpf_link;
 }
 extern "C" {
@@ -5756,14 +5757,14 @@ extern "C" {
         prog: *const bpf_program,
         pid: pid_t,
         binary_path: *const ::std::os::raw::c_char,
-        func_offset: usize,
+        func_offset: size_t,
         opts: *const bpf_uprobe_opts,
     ) -> *mut bpf_link;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_usdt_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub usdt_cookie: __u64,
 }
 extern "C" {
@@ -5779,7 +5780,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_tracepoint_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub bpf_cookie: __u64,
 }
 extern "C" {
@@ -5806,7 +5807,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_trace_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub cookie: __u64,
 }
 extern "C" {
@@ -5852,7 +5853,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_iter_attach_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub link_info: *mut bpf_iter_link_info,
     pub link_info_len: __u32,
     pub __bindgen_padding_0: [u8; 4usize],
@@ -5908,14 +5909,14 @@ extern "C" {
 extern "C" {
     pub fn bpf_program__log_buf(
         prog: *const bpf_program,
-        log_size: *mut usize,
+        log_size: *mut size_t,
     ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
     pub fn bpf_program__set_log_buf(
         prog: *mut bpf_program,
         log_buf: *mut ::std::os::raw::c_char,
-        log_size: usize,
+        log_size: size_t,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -6018,13 +6019,13 @@ extern "C" {
     pub fn bpf_map__set_initial_value(
         map: *mut bpf_map,
         data: *const ::std::os::raw::c_void,
-        size: usize,
+        size: size_t,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn bpf_map__initial_value(
         map: *mut bpf_map,
-        psize: *mut usize,
+        psize: *mut size_t,
     ) -> *const ::std::os::raw::c_void;
 }
 extern "C" {
@@ -6067,9 +6068,9 @@ extern "C" {
     pub fn bpf_map__lookup_elem(
         map: *const bpf_map,
         key: *const ::std::os::raw::c_void,
-        key_sz: usize,
+        key_sz: size_t,
         value: *mut ::std::os::raw::c_void,
-        value_sz: usize,
+        value_sz: size_t,
         flags: __u64,
     ) -> ::std::os::raw::c_int;
 }
@@ -6077,9 +6078,9 @@ extern "C" {
     pub fn bpf_map__update_elem(
         map: *const bpf_map,
         key: *const ::std::os::raw::c_void,
-        key_sz: usize,
+        key_sz: size_t,
         value: *const ::std::os::raw::c_void,
-        value_sz: usize,
+        value_sz: size_t,
         flags: __u64,
     ) -> ::std::os::raw::c_int;
 }
@@ -6087,7 +6088,7 @@ extern "C" {
     pub fn bpf_map__delete_elem(
         map: *const bpf_map,
         key: *const ::std::os::raw::c_void,
-        key_sz: usize,
+        key_sz: size_t,
         flags: __u64,
     ) -> ::std::os::raw::c_int;
 }
@@ -6095,9 +6096,9 @@ extern "C" {
     pub fn bpf_map__lookup_and_delete_elem(
         map: *const bpf_map,
         key: *const ::std::os::raw::c_void,
-        key_sz: usize,
+        key_sz: size_t,
         value: *mut ::std::os::raw::c_void,
-        value_sz: usize,
+        value_sz: size_t,
         flags: __u64,
     ) -> ::std::os::raw::c_int;
 }
@@ -6106,27 +6107,27 @@ extern "C" {
         map: *const bpf_map,
         cur_key: *const ::std::os::raw::c_void,
         next_key: *mut ::std::os::raw::c_void,
-        key_sz: usize,
+        key_sz: size_t,
     ) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_xdp_set_link_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub old_fd: ::std::os::raw::c_int,
     pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_xdp_attach_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub old_prog_fd: ::std::os::raw::c_int,
     pub __bindgen_padding_0: [u8; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_xdp_query_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub prog_id: __u32,
     pub drv_prog_id: __u32,
     pub hw_prog_id: __u32,
@@ -6172,7 +6173,7 @@ pub type bpf_tc_flags = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_tc_hook {
-    pub sz: usize,
+    pub sz: size_t,
     pub ifindex: ::std::os::raw::c_int,
     pub attach_point: bpf_tc_attach_point,
     pub parent: __u32,
@@ -6190,7 +6191,7 @@ impl Default for bpf_tc_hook {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_tc_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub prog_fd: ::std::os::raw::c_int,
     pub flags: __u32,
     pub prog_id: __u32,
@@ -6226,13 +6227,13 @@ pub type ring_buffer_sample_fn = ::std::option::Option<
     unsafe extern "C" fn(
         ctx: *mut ::std::os::raw::c_void,
         data: *mut ::std::os::raw::c_void,
-        size: usize,
+        size: size_t,
     ) -> ::std::os::raw::c_int,
 >;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct ring_buffer_opts {
-    pub sz: usize,
+    pub sz: size_t,
 }
 extern "C" {
     pub fn ring_buffer__new(
@@ -6284,12 +6285,12 @@ pub type perf_buffer_lost_fn = ::std::option::Option<
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct perf_buffer_opts {
-    pub sz: usize,
+    pub sz: size_t,
 }
 extern "C" {
     pub fn perf_buffer__new(
         map_fd: ::std::os::raw::c_int,
-        page_cnt: usize,
+        page_cnt: size_t,
         sample_cb: perf_buffer_sample_fn,
         lost_cb: perf_buffer_lost_fn,
         ctx: *mut ::std::os::raw::c_void,
@@ -6310,7 +6311,7 @@ pub type perf_buffer_event_fn = ::std::option::Option<
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct perf_buffer_raw_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub cpu_cnt: ::std::os::raw::c_int,
     pub __bindgen_padding_0: [u8; 4usize],
     pub cpus: *mut ::std::os::raw::c_int,
@@ -6328,7 +6329,7 @@ impl Default for perf_buffer_raw_opts {
 extern "C" {
     pub fn perf_buffer__new_raw(
         map_fd: ::std::os::raw::c_int,
-        page_cnt: usize,
+        page_cnt: size_t,
         attr: *mut perf_event_attr,
         event_cb: perf_buffer_event_fn,
         ctx: *mut ::std::os::raw::c_void,
@@ -6353,21 +6354,22 @@ extern "C" {
 extern "C" {
     pub fn perf_buffer__consume_buffer(
         pb: *mut perf_buffer,
-        buf_idx: usize,
+        buf_idx: size_t,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn perf_buffer__buffer_cnt(pb: *const perf_buffer) -> usize;
+    pub fn perf_buffer__buffer_cnt(pb: *const perf_buffer) -> size_t;
 }
 extern "C" {
-    pub fn perf_buffer__buffer_fd(pb: *const perf_buffer, buf_idx: usize) -> ::std::os::raw::c_int;
+    pub fn perf_buffer__buffer_fd(pb: *const perf_buffer, buf_idx: size_t)
+        -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn perf_buffer__buffer(
         pb: *mut perf_buffer,
         buf_idx: ::std::os::raw::c_int,
         buf: *mut *mut ::std::os::raw::c_void,
-        buf_size: *mut usize,
+        buf_size: *mut size_t,
     ) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
@@ -6453,10 +6455,10 @@ impl Default for bpf_prog_skeleton {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_object_skeleton {
-    pub sz: usize,
+    pub sz: size_t,
     pub name: *const ::std::os::raw::c_char,
     pub data: *const ::std::os::raw::c_void,
-    pub data_sz: usize,
+    pub data_sz: size_t,
     pub obj: *mut *mut bpf_object,
     pub map_cnt: ::std::os::raw::c_int,
     pub map_skel_sz: ::std::os::raw::c_int,
@@ -6511,7 +6513,7 @@ impl Default for bpf_var_skeleton {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_object_subskeleton {
-    pub sz: usize,
+    pub sz: size_t,
     pub obj: *const bpf_object,
     pub map_cnt: ::std::os::raw::c_int,
     pub map_skel_sz: ::std::os::raw::c_int,
@@ -6541,7 +6543,7 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct gen_loader_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub data: *const ::std::os::raw::c_char,
     pub insns: *const ::std::os::raw::c_char,
     pub data_sz: __u32,
@@ -6565,12 +6567,12 @@ extern "C" {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_linker_opts {
-    pub sz: usize,
+    pub sz: size_t,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_linker_file_opts {
-    pub sz: usize,
+    pub sz: size_t,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6619,7 +6621,7 @@ pub type libbpf_prog_attach_fn_t = ::std::option::Option<
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct libbpf_prog_handler_opts {
-    pub sz: usize,
+    pub sz: size_t,
     pub cookie: ::std::os::raw::c_long,
     pub prog_setup_fn: libbpf_prog_setup_fn_t,
     pub prog_prepare_load_fn: libbpf_prog_prepare_load_fn_t,
