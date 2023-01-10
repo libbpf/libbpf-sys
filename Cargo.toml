@@ -1,6 +1,6 @@
 [package]
 name = "libbpf-sys"
-version = "1.1.0+v1.1.0"
+version = "1.1.1+v1.1.0"
 description = "Rust bindings to libbpf from the Linux kernel"
 readme = "README.md"
 repository = "https://github.com/libbpf/libbpf-sys"
