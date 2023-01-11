@@ -115,6 +115,41 @@ jobs:
       - run: cargo test --features "${{ matrix.features }}"
         shell: alpine.sh {0}
 
+  test-libbpf-rs:
+    # check that libbpf-rs, one of the main consumers of the library, works with
+    # this version of libbpf-sys
+    name: Test libbpf-rs integration
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_VERBOSE: 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+              build-essential \
+              libelf-dev
+
+      - name: Build libbpf-rs with libbpf-sys
+        run: |
+          cargo init --bin libbpf-rs-test-project
+          cd libbpf-rs-test-project
+          # Add the most recent *published* version of libbpf-rs (as opposed to,
+          # say, cloning a development snapshot, which would just introduce
+          # additional uncertainty into the process).
+          cargo add libbpf-rs
+          # Override libbpf-sys in use with our current one.
+          cat >> Cargo.toml <<EOF
+          [patch.crates-io]
+          libbpf-sys = { path = '..' }
+          EOF
+          cargo build
+
   publish:
     name: Publish to crates.io
     if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
