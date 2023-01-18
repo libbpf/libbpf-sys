@@ -22,8 +22,8 @@ maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
 bindgen = { version = "^0.63", optional = true }
-cc = "^1.0"
-pkg-config = "^0.3"
+cc = "^1.0.3"
+pkg-config = "^0.3.3"
 
 [lib]
 crate-type = ["lib", "staticlib"]
