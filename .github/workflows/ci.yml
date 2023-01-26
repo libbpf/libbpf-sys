@@ -133,7 +133,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install \
               build-essential \
-              libelf-dev
+              libelf-dev \
+              zlib1g-dev
 
       - name: Build libbpf-rs with libbpf-sys
         run: |
@@ -156,6 +157,7 @@ jobs:
     needs:
       - test-gnu
       - test-musl
+      - test-libbpf-rs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
