@@ -151,7 +151,9 @@ fn main() {
 
     if let Ok(ld_path) = env::var("LD_LIBRARY_PATH") {
         for path in ld_path.split(":") {
-            println!("cargo:rustc-link-search=native={}", path);
+            if !path.is_empty() {
+                println!("cargo:rustc-link-search=native={}", path);
+            }
         }
     }
 }
