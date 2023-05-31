@@ -24,6 +24,8 @@ maintenance = { status = "passively-maintained" }
 bindgen = { version = "^0.63", optional = true }
 cc = "^1.0.3"
 pkg-config = "^0.3.3"
+nix = "^0.26.2"
+num_cpus = "^1.15.0"
 
 [lib]
 crate-type = ["lib", "staticlib"]
@@ -31,3 +33,4 @@ crate-type = ["lib", "staticlib"]
 [features]
 novendor = []
 static = []
+vendored = ["static"]

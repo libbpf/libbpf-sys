@@ -86,6 +86,12 @@ fn library_prefix() -> String {
     "".to_string()
 }
 
+fn pkg_check(pkg: &str) {
+    if let Err(_) = process::Command::new(pkg).status() {
+        panic!("{} is required to compile libbpf-sys using the vendored copy of libbpf", pkg);
+    }
+}
+
 fn main() {
     let src_dir = path::PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
 
@@ -98,12 +104,15 @@ fn main() {
 
     let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
-    if let Err(_) = process::Command::new("make").status() {
-        panic!("make is required to compile libbpf-sys using the vendored copy of libbpf");
-    }
-
-    if let Err(_) = process::Command::new("pkg-config").status() {
-        panic!("pkg-config is required to compile libbpf-sys using the vendored copy of libbpf");
+    // check for all necessary compilation tools
+    pkg_check("make");
+    pkg_check("pkg-config");
+    if cfg!(feature = "vendored") {
+        pkg_check("autoreconf");
+        pkg_check("autopoint");
+        pkg_check("flex");
+        pkg_check("bison");
+        pkg_check("gawk");
     }
 
     let compiler = match cc::Build::new().try_get_compiler() {
@@ -117,15 +126,35 @@ fn main() {
     let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
     let _ = fs::create_dir(&obj_dir);
 
+    // compile static zlib and static libelf
+    #[cfg(feature = "vendored")]
+    make_zlib(&compiler, &src_dir, &out_dir);
+    #[cfg(feature = "vendored")]
+    make_elfutils(&compiler, &src_dir, &out_dir);
+
+    let cflags = if cfg!(feature = "vendored") {
+        // make sure that the headerfiles from libelf and zlib
+        // for libbpf come from the vendorized version
+        
+        let mut cflags = compiler.cflags_env();
+        cflags.push(&format!(" -I{}/elfutils/libelf/", src_dir.display()));
+        cflags.push(&format!(" -I{}/zlib/", src_dir.display()));
+        cflags
+    } else {
+        compiler.cflags_env()
+    };
+
     let status = process::Command::new("make")
         .arg("install")
+        .arg("-j")
+        .arg(&format!("{}", num_cpus::get()))
         .env("BUILD_STATIC_ONLY", "y")
         .env("PREFIX", "/")
         .env("LIBDIR", "")
         .env("OBJDIR", &obj_dir)
         .env("DESTDIR", &out_dir)
         .env("CC", compiler.path())
-        .env("CFLAGS", compiler.cflags_env())
+        .env("CFLAGS", cflags)
         .current_dir(&src_dir.join("libbpf/src"))
         .status()
         .expect("could not execute make");
@@ -156,4 +185,129 @@ fn main() {
             }
         }
     }
+}
+
+#[cfg(feature = "vendored")]
+fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
+    use nix::fcntl;
+    use std::os::fd::AsRawFd;
+
+    // lock README such that if two crates are trying to compile
+    // this at the same time (eg libbpf-rs libbpf-cargo)
+    // they wont trample each other
+    let file = std::fs::File::open(&src_dir.join("zlib/README")).unwrap();
+    let fd = file.as_raw_fd();
+    fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
+
+    let status = process::Command::new("./configure")
+        .arg("--static")
+        .arg("--prefix")
+        .arg(".")
+        .arg("--libdir")
+        .arg(out_dir)
+        .env("CC", compiler.path())
+        .env("CFLAGS", compiler.cflags_env())
+        .current_dir(&src_dir.join("zlib"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    let status = process::Command::new("make")
+        .arg("install")
+        .arg("-j")
+        .arg(&format!("{}", num_cpus::get()))
+        .current_dir(&src_dir.join("zlib"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    let status = process::Command::new("make")
+        .arg("distclean")
+        .current_dir(&src_dir.join("zlib"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+}
+
+#[cfg(feature = "vendored")]
+fn make_elfutils(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
+    use nix::fcntl;
+    use std::os::fd::AsRawFd;
+
+    // lock README such that if two crates are trying to compile
+    // this at the same time (eg libbpf-rs libbpf-cargo)
+    // they wont trample each other
+    let file = std::fs::File::open(&src_dir.join("elfutils/README")).unwrap();
+    let fd = file.as_raw_fd();
+    fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
+
+    let flags = compiler
+        .cflags_env()
+        .into_string()
+        .expect("failed to get cflags");
+    let mut cflags: String = flags
+        .split_whitespace()
+        .filter_map(|arg| {
+            if arg != "-static" {
+                // compilation fails with -static flag
+                Some(format!(" {arg}"))
+            } else {
+                None
+            }
+        })
+        .collect();
+    cflags.push_str(&format!(" -I{}/zlib/", src_dir.display()));
+
+    let status = process::Command::new("autoreconf")
+        .arg("--install")
+        .arg("--force")
+        .current_dir(&src_dir.join("elfutils"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    // location of libz.a
+    let out_lib = format!("-L{}", out_dir.display());
+    let status = process::Command::new("./configure")
+        .arg("--enable-maintainer-mode")
+        .arg("--disable-debuginfod")
+        .arg("--disable-libdebuginfod")
+        .arg("--without-zstd")
+        .arg("--prefix")
+        .arg(&src_dir.join("elfutils/prefix_dir"))
+        .arg("--libdir")
+        .arg(out_dir)
+        .env("CC", compiler.path())
+        .env("CXX", compiler.path())
+        .env("CFLAGS", &cflags)
+        .env("CXXFLAGS", &cflags)
+        .env("LDFLAGS", &out_lib)
+        .current_dir(&src_dir.join("elfutils"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    let status = process::Command::new("make")
+        .arg("install")
+        .arg("-j")
+        .arg(&format!("{}", num_cpus::get()))
+        .arg("BUILD_STATIC_ONLY=y")
+        .current_dir(&src_dir.join("elfutils"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    let status = process::Command::new("make")
+        .arg("distclean")
+        .current_dir(&src_dir.join("elfutils"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
 }
