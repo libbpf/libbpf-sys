@@ -16,7 +16,7 @@ edition = "2018"
 build = "build.rs"
 links = "libbpf"
 exclude = [
-	"/elfutils/tests",
+	"/elfutils/tests/*.bz2",
 	"/libbpf/assets",
 	"/zlib/contrib",
 ]
