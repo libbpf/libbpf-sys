@@ -6,6 +6,7 @@
 
 include!("bindings.rs");
 
+#[cfg(feature = "static")]
 macro_rules! header {
     ($file:literal) => {
         ($file, include_str!(concat!("../libbpf/src/", $file)))
@@ -15,7 +16,7 @@ macro_rules! header {
 /// Vendored libbpf headers
 ///
 /// Tuple format is: (header filename, header contents)
-#[cfg(not(feature = "novendor"))]
+#[cfg(feature = "static")]
 pub const API_HEADERS: [(&'static str, &'static str); 10] = [
     header!("bpf.h"),
     header!("libbpf.h"),

@@ -36,6 +36,5 @@ num_cpus = "^1.16.0"
 crate-type = ["lib", "staticlib"]
 
 [features]
-novendor = []
 static = []
-vendored = ["static"]
+novendor = [] # depricated, novendor is the default
