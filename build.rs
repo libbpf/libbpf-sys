@@ -97,7 +97,7 @@ fn main() {
 
     generate_bindings(src_dir.clone());
 
-    if cfg!(feature = "novendor") {
+    if cfg!(not(feature = "static")) {
         println!("cargo:rustc-link-lib={}bpf\n", library_prefix());
         return;
     }
@@ -107,13 +107,11 @@ fn main() {
     // check for all necessary compilation tools
     pkg_check("make");
     pkg_check("pkg-config");
-    if cfg!(feature = "vendored") {
-        pkg_check("autoreconf");
-        pkg_check("autopoint");
-        pkg_check("flex");
-        pkg_check("bison");
-        pkg_check("gawk");
-    }
+    pkg_check("autoreconf");
+    pkg_check("autopoint");
+    pkg_check("flex");
+    pkg_check("bison");
+    pkg_check("gawk");
 
     let compiler = match cc::Build::new().try_get_compiler() {
         Ok(compiler) => compiler,
@@ -127,9 +125,7 @@ fn main() {
     let _ = fs::create_dir(&obj_dir);
 
     // compile static zlib and static libelf
-    #[cfg(feature = "vendored")]
     make_zlib(&compiler, &src_dir, &out_dir);
-    #[cfg(feature = "vendored")]
     make_elfutils(&compiler, &src_dir, &out_dir);
 
     let cflags = if cfg!(feature = "vendored") {
@@ -187,7 +183,6 @@ fn main() {
     }
 }
 
-#[cfg(feature = "vendored")]
 fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
     use nix::fcntl;
     use std::os::fd::AsRawFd;
@@ -232,7 +227,6 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathB
     assert!(status.success(), "make failed");
 }
 
-#[cfg(feature = "vendored")]
 fn make_elfutils(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
     use nix::fcntl;
     use std::os::fd::AsRawFd;
