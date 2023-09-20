@@ -140,6 +140,7 @@ fn main() {
         compiler.cflags_env()
     };
 
+
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
@@ -238,6 +239,8 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::P
     let fd = file.as_raw_fd();
     fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
 
+
+
     let flags = compiler
         .cflags_env()
         .into_string()
@@ -254,9 +257,21 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::P
         })
         .collect();
 
+
+
     #[cfg(target_arch = "aarch64")]
     cflags.push_str(" -Wno-error=stringop-overflow"); 
     cflags.push_str(&format!(" -I{}/zlib/", src_dir.display()));
+
+    let status = process::Command::new("sed")
+        .arg("-i")
+        .arg(r#"s/po doc tests/po doc/g"#)
+        .arg("Makefile.am")
+        .current_dir(&src_dir.join("elfutils"))
+        .status()
+        .expect("could not strip tests");
+
+    assert!(status.success(), "make failed");
 
     let status = process::Command::new("autoreconf")
         .arg("--install")

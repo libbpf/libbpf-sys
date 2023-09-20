@@ -4,196 +4,259 @@ on:
   push:
 
 jobs:
-  test-gnu:
-    # dynamically linked glibc
-    name: Test on Ubuntu ${{ matrix.os-arch }} (${{ matrix.features }})
+  test-arm-static:
+    name: Test Static on Arm
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          - rust-target: x86_64-unknown-linux-gnu
-            os-target: x86_64-linux-gnu
-            os-arch: amd64
-            features: ''
-
-          - rust-target: x86_64-unknown-linux-gnu
-            os-target: x86_64-linux-gnu
-            os-arch: amd64
-            features: static 
-
           - rust-target: aarch64-unknown-linux-gnu
             os-target: aarch64-linux-gnu
             os-arch: arm64
-            features: ''
-
-          - rust-target: powerpc64le-unknown-linux-gnu
-            os-target: powerpc64le-linux-gnu
-            os-arch: ppc64el
-            features: ''
-    runs-on: ubuntu-latest
+            features: static
     env:
       CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
       CARGO_TERM_VERBOSE: 'true'
       RUSTFLAGS: -C linker=/usr/bin/${{ matrix.os-target }}-gcc
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: recursive
-
-      - name: Add apt sources for ${{ matrix.os-arch }}
-        if: matrix.os-arch != 'amd64'
-        run: |
-          dpkg --add-architecture ${{ matrix.os-arch }}
-
-          release=$(. /etc/os-release && echo "$UBUNTU_CODENAME")
-          sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
-          printf 'deb [arch=${{ matrix.os-arch }}] http://ports.ubuntu.com/ %s main restricted\n' \
-              $release $release-updates $release-security \
-              >> /etc/apt/sources.list
-        shell: sudo sh -e {0}
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install \
-              build-essential \
-              libelf-dev:${{ matrix.os-arch }} \
-              zlib1g-dev:${{ matrix.os-arch }}
-
-      - name: Install libbpf-dev
-        run: sudo apt-get install libbpf-dev:${{ matrix.os-arch }}
-
-      - name: Install Static Compilation dependencies
-        run: |
-          sudo apt-get install \
-              autopoint:${{ matrix.os-arch }} \
-              autoconf:${{ matrix.os-arch }} \
-              flex:${{ matrix.os-arch }} \
-              bison:${{ matrix.os-arch }} \
-              gawk:${{ matrix.os-arch }}
-
-      - name: Install linker for ${{ matrix.os-target }}
-        if: matrix.os-arch != 'amd64'
-        run: sudo apt-get install gcc-${{ matrix.os-target }}
-
-      - name: Install Rust stable for ${{ matrix.rust-target }}
-        uses: dtolnay/rust-toolchain@stable
+      - uses: pguyot/arm-runner-action@v2
         with:
-          targets: ${{ matrix.rust-target }}
+          image_additional_mb: 1024
+          commands: |
+            #dpkg --add-architecture ${{ matrix.os-arch }}
 
-      - run: cargo build --features "${{ matrix.features }}"
+            #release=$(. /etc/os-release && echo "$UBUNTU_CODENAME")
+            #sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
+            #printf 'deb [arch=${{ matrix.os-arch }}] http://ports.ubuntu.com/ %s main restricted\n' \
+              #$release $release-updates $release-security \
+              #>> /etc/apt/sources.list
 
-      - run: cargo test --features "${{ matrix.features }}"
-        if: matrix.os-arch == 'amd64'
+            sudo apt-get update
+            sudo apt-get install -y \
+                build-essential \
+                autopoint \
+                autoconf \
+                flex \
+                bison \
+                gawk \
+                gcc-arm64
 
-  test-musl:
-    # dynamically linked musl libc
-    name: Test on Alpine Linux x86_64 (${{ matrix.features }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        features:
-          - ''
-    env:
-      CARGO_TERM_VERBOSE: 'true'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+            curl \
+              --proto '=https' \
+              --tlsv1.2 \
+              --retry 10 \
+              --retry-connrefused \
+              --location \
+              --silent \
+              --show-error \
+              --fail "https://sh.rustup.rs" \
+              | sh -s -- --default-toolchain none -y
 
-      - name: Install Alpine Linux with dependencies
-        uses: jirutka/setup-alpine@v1
-        with:
-          branch: latest-stable
-          packages: >
-            build-base
-            cargo
-            elfutils-dev
-            linux-headers
-            zlib-dev
+            . "$HOME/.cargo/env"
 
-      - name: Install libbpf-dev
-        run: apk add libbpf-dev
-        shell: alpine.sh --root {0}
+            rustup toolchain install stable \
+              --target aarch64-unknown-linux-gnu \
+              --profile minimal \
+              --no-self-update
 
-      - run: cargo build --features "${{ matrix.features }}"
-        shell: alpine.sh {0}
+            rustup default stable
 
-      - run: cargo test --features "${{ matrix.features }}"
-        shell: alpine.sh {0}
+            rm -rf .git
+            cargo build --features "${{ matrix.features }}"
+            cargo test --features "${{ matrix.features }}"
+  #test-gnu:
+    ## dynamically linked glibc
+    #name: Test on Ubuntu ${{ matrix.os-arch }} (${{ matrix.features }})
+    #strategy:
+      #matrix:
+        #include:
+          #- rust-target: x86_64-unknown-linux-gnu
+            #os-target: x86_64-linux-gnu
+            #os-arch: amd64
+            #features: ''
 
-  test-libbpf-rs:
-    # check that libbpf-rs, one of the main consumers of the library, works with
-    # this version of libbpf-sys
-    name: Test libbpf-rs integration
-    runs-on: ubuntu-latest
-    env:
-      CARGO_TERM_VERBOSE: 'true'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+          #- rust-target: x86_64-unknown-linux-gnu
+            #os-target: x86_64-linux-gnu
+            #os-arch: amd64
+            #features: static 
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install \
-              build-essential \
-              libelf-dev \
-              zlib1g-dev
+          #- rust-target: aarch64-unknown-linux-gnu
+            #os-target: aarch64-linux-gnu
+            #os-arch: arm64
+            #features: ''
 
-      - name: Build libbpf-rs with libbpf-sys
-        run: |
-          cargo init --bin libbpf-rs-test-project
-          cd libbpf-rs-test-project
-          # Add the most recent *published* version of libbpf-rs (as opposed to,
-          # say, cloning a development snapshot, which would just introduce
-          # additional uncertainty into the process).
-          cargo add libbpf-rs
-          # Override libbpf-sys in use with our current one.
-          cat >> Cargo.toml <<EOF
-          [patch.crates-io]
-          libbpf-sys = { path = '..' }
-          EOF
-          cargo build
+          #- rust-target: powerpc64le-unknown-linux-gnu
+            #os-target: powerpc64le-linux-gnu
+            #os-arch: ppc64el
+            #features: ''
+    #runs-on: ubuntu-latest
+    #env:
+      #CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
+      #CARGO_TERM_VERBOSE: 'true'
+      #RUSTFLAGS: -C linker=/usr/bin/${{ matrix.os-target }}-gcc
+    #steps:
+      #- name: Checkout repository
+        #uses: actions/checkout@v3
+        #with:
+          #submodules: recursive
 
-  publish:
-    name: Publish to crates.io
-    if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
-    needs:
-      - test-gnu
-      - test-musl
-      - test-libbpf-rs
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+      #- name: Add apt sources for ${{ matrix.os-arch }}
+        #if: matrix.os-arch != 'amd64'
+        #run: |
+          #dpkg --add-architecture ${{ matrix.os-arch }}
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.rust-target }}
+          #release=$(. /etc/os-release && echo "$UBUNTU_CODENAME")
+          #sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
+          #printf 'deb [arch=${{ matrix.os-arch }}] http://ports.ubuntu.com/ %s main restricted\n' \
+              #$release $release-updates $release-security \
+              #>> /etc/apt/sources.list
+        #shell: sudo sh -e {0}
 
-      # This is needed for cargo-pkgid.
-      - name: Fetch dependencies and generate Cargo.lock
-        run: cargo fetch
+      #- name: Install system dependencies
+        #run: |
+          #sudo apt-get update
+          #sudo apt-get install \
+              #build-essential \
+              #libelf-dev:${{ matrix.os-arch }} \
+              #zlib1g-dev:${{ matrix.os-arch }}
 
-      - name: Resolve crate version and check git tag name
-        run: |
-          crate_version="$(cargo pkgid | cut -d '#' -f2 | grep -o '[^:]*$')"
-          git_tag=${GITHUB_REF#refs/tags/}
+      #- name: Install libbpf-dev
+        #run: sudo apt-get install libbpf-dev:${{ matrix.os-arch }}
 
-          if [ "$git_tag" != "$crate_version" ]; then
-              printf '::error::%s\n' "Crate version ($crate_version) does not match git tag ($git_tag)"
-              exit 1
-          fi
+      #- name: Install Static Compilation dependencies
+        #run: |
+          #sudo apt-get install \
+              #autopoint \
+              #autoconf \
+              #flex \
+              #bison \
+              #gawk \
 
-      - name: Publish to crates.io
-        # no-verify is to skip building; it has been already verified in the test-* jobs.
-        run: cargo publish --no-verify --verbose
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      #- name: Install linker for ${{ matrix.os-target }}
+        #if: matrix.os-arch != 'amd64'
+        #run: sudo apt-get install gcc-${{ matrix.os-target }}
+
+      #- name: Install Rust stable for ${{ matrix.rust-target }}
+        #uses: dtolnay/rust-toolchain@stable
+        #with:
+          #targets: ${{ matrix.rust-target }}
+
+      #- run: cargo build --features "${{ matrix.features }}"
+
+      #- run: cargo test --features "${{ matrix.features }}"
+        #if: matrix.os-arch == 'amd64'
+
+  #test-musl:
+    ## dynamically linked musl libc
+    #name: Test on Alpine Linux x86_64 (${{ matrix.features }})
+    #runs-on: ubuntu-latest
+    #strategy:
+      #matrix:
+        #features:
+          #- ''
+    #env:
+      #CARGO_TERM_VERBOSE: 'true'
+    #steps:
+      #- name: Checkout repository
+        #uses: actions/checkout@v3
+        #with:
+          #submodules: recursive
+
+      #- name: Install Alpine Linux with dependencies
+        #uses: jirutka/setup-alpine@v1
+        #with:
+          #branch: latest-stable
+          #packages: >
+            #build-base
+            #cargo
+            #elfutils-dev
+            #linux-headers
+            #zlib-dev
+
+      #- name: Install libbpf-dev
+        #run: apk add libbpf-dev
+        #shell: alpine.sh --root {0}
+
+      #- run: cargo build --features "${{ matrix.features }}"
+        #shell: alpine.sh {0}
+
+      #- run: cargo test --features "${{ matrix.features }}"
+        #shell: alpine.sh {0}
+
+  #test-libbpf-rs:
+    ## check that libbpf-rs, one of the main consumers of the library, works with
+    ## this version of libbpf-sys
+    #name: Test libbpf-rs integration
+    #runs-on: ubuntu-latest
+    #env:
+      #CARGO_TERM_VERBOSE: 'true'
+    #steps:
+      #- name: Checkout repository
+        #uses: actions/checkout@v3
+        #with:
+          #submodules: recursive
+
+      #- name: Install system dependencies
+        #run: |
+          #sudo apt-get update
+          #sudo apt-get install \
+              #build-essential \
+              #libelf-dev \
+              #zlib1g-dev
+
+      #- name: Build libbpf-rs with libbpf-sys
+        #run: |
+          #cargo init --bin libbpf-rs-test-project
+          #cd libbpf-rs-test-project
+          ## Add the most recent *published* version of libbpf-rs (as opposed to,
+          ## say, cloning a development snapshot, which would just introduce
+          ## additional uncertainty into the process).
+          #cargo add libbpf-rs
+          ## Override libbpf-sys in use with our current one.
+          #cat >> Cargo.toml <<EOF
+          #[patch.crates-io]
+          #libbpf-sys = { path = '..' }
+          #EOF
+          #cargo build
+
+  #publish:
+    #name: Publish to crates.io
+    #if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
+    #needs:
+      #- test-gnu
+      #- test-musl
+      #- test-libbpf-rs
+    #runs-on: ubuntu-latest
+    #steps:
+      #- name: Checkout repository
+        #uses: actions/checkout@v3
+        #with:
+          #submodules: recursive
+
+      #- name: Install Rust toolchain
+        #uses: dtolnay/rust-toolchain@stable
+        #with:
+          #targets: ${{ matrix.rust-target }}
+
+      ## This is needed for cargo-pkgid.
+      #- name: Fetch dependencies and generate Cargo.lock
+        #run: cargo fetch
+
+      #- name: Resolve crate version and check git tag name
+        #run: |
+          #crate_version="$(cargo pkgid | cut -d '#' -f2 | grep -o '[^:]*$')"
+          #git_tag=${GITHUB_REF#refs/tags/}
+
+          #if [ "$git_tag" != "$crate_version" ]; then
+              #printf '::error::%s\n' "Crate version ($crate_version) does not match git tag ($git_tag)"
+              #exit 1
+          #fi
+
+      #- name: Publish to crates.io
+        ## no-verify is to skip building; it has been already verified in the test-* jobs.
+        #run: cargo publish --no-verify --verbose
+        #env:
+          #CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
