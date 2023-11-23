@@ -29,7 +29,7 @@ maintenance = { status = "passively-maintained" }
 bindgen = { version = "^0.66", optional = true }
 cc = "^1.0.79"
 pkg-config = "^0.3.27"
-nix = "^0.26.2"
+nix = { version = "^0.27.0", default-features = false, features = ["fs"] }
 num_cpus = "^1.16.0"
 
 [lib]
