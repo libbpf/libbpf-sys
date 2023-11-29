@@ -9,7 +9,7 @@ mod tests {
         _arg1: *const std::os::raw::c_char,
         _ap: *mut __va_list_tag,
     ) -> std::os::raw::c_int {
-        return 0;
+        0
     }
 
     #[test]

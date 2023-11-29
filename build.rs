@@ -90,7 +90,7 @@ fn library_prefix() -> String {
 }
 
 fn pkg_check(pkg: &str) {
-    if let Err(_) = process::Command::new(pkg).status() {
+    if process::Command::new(pkg).status().is_err() {
         panic!(
             "{} is required to compile libbpf-sys using the vendored copy of libbpf",
             pkg
@@ -184,7 +184,7 @@ fn main() {
     println!("cargo:include={}/include", out_dir.to_string_lossy());
 
     if let Ok(ld_path) = env::var("LD_LIBRARY_PATH") {
-        for path in ld_path.split(":") {
+        for path in ld_path.split(':') {
             if !path.is_empty() {
                 println!("cargo:rustc-link-search=native={}", path);
             }
@@ -192,11 +192,11 @@ fn main() {
     }
 }
 
-fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
+fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
-    let file = std::fs::File::open(&src_dir.join("zlib/README")).unwrap();
+    let file = std::fs::File::open(src_dir.join("zlib/README")).unwrap();
     let fd = file.as_raw_fd();
     fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
 
@@ -233,11 +233,11 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathB
     assert!(status.success(), "make failed");
 }
 
-fn make_elfutils(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
+fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
-    let file = std::fs::File::open(&src_dir.join("elfutils/README")).unwrap();
+    let file = std::fs::File::open(src_dir.join("elfutils/README")).unwrap();
     let fd = file.as_raw_fd();
     fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
 
