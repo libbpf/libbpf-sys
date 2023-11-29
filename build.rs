@@ -2,8 +2,11 @@
 
 use std::env;
 use std::fs;
+use std::os::fd::AsRawFd as _;
 use std::path;
 use std::process;
+
+use nix::fcntl;
 
 #[cfg(feature = "bindgen")]
 fn generate_bindings(src_dir: path::PathBuf) {
@@ -88,7 +91,10 @@ fn library_prefix() -> String {
 
 fn pkg_check(pkg: &str) {
     if let Err(_) = process::Command::new(pkg).status() {
-        panic!("{} is required to compile libbpf-sys using the vendored copy of libbpf", pkg);
+        panic!(
+            "{} is required to compile libbpf-sys using the vendored copy of libbpf",
+            pkg
+        );
     }
 }
 
@@ -126,16 +132,15 @@ fn main() {
     let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
     let _ = fs::create_dir(&obj_dir);
 
-    // compile static zlib and static libelf
-    #[cfg(feature = "vendored")]
-    make_zlib(&compiler, &src_dir, &out_dir);
-    #[cfg(feature = "vendored")]
-    make_elfutils(&compiler, &src_dir, &out_dir);
+    if cfg!(feature = "vendored") {
+        make_zlib(&compiler, &src_dir, &out_dir);
+        make_elfutils(&compiler, &src_dir, &out_dir);
+    }
 
     let cflags = if cfg!(feature = "vendored") {
         // make sure that the headerfiles from libelf and zlib
         // for libbpf come from the vendorized version
-        
+
         let mut cflags = compiler.cflags_env();
         cflags.push(&format!(" -I{}/elfutils/libelf/", src_dir.display()));
         cflags.push(&format!(" -I{}/zlib/", src_dir.display()));
@@ -187,11 +192,7 @@ fn main() {
     }
 }
 
-#[cfg(feature = "vendored")]
 fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
-    use nix::fcntl;
-    use std::os::fd::AsRawFd;
-
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
@@ -232,11 +233,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathB
     assert!(status.success(), "make failed");
 }
 
-#[cfg(feature = "vendored")]
 fn make_elfutils(compiler: &cc::Tool, src_dir: &path::PathBuf, out_dir: &path::PathBuf) {
-    use nix::fcntl;
-    use std::os::fd::AsRawFd;
-
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
