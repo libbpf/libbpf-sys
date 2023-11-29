@@ -18,7 +18,7 @@ jobs:
           - rust-target: x86_64-unknown-linux-gnu
             os-target: x86_64-linux-gnu
             os-arch: amd64
-            features: static 
+            features: novendor
 
           - rust-target: aarch64-unknown-linux-gnu
             os-target: aarch64-linux-gnu
@@ -61,16 +61,8 @@ jobs:
               zlib1g-dev:${{ matrix.os-arch }}
 
       - name: Install libbpf-dev
+        if: matrix.features == 'novendor'
         run: sudo apt-get install libbpf-dev:${{ matrix.os-arch }}
-
-      - name: Install Static Compilation dependencies
-        run: |
-          sudo apt-get install \
-              autopoint:${{ matrix.os-arch }} \
-              autoconf:${{ matrix.os-arch }} \
-              flex:${{ matrix.os-arch }} \
-              bison:${{ matrix.os-arch }} \
-              gawk:${{ matrix.os-arch }}
 
       - name: Install linker for ${{ matrix.os-target }}
         if: matrix.os-arch != 'amd64'
@@ -94,6 +86,7 @@ jobs:
       matrix:
         features:
           - ''
+          - novendor
     env:
       CARGO_TERM_VERBOSE: 'true'
     steps:
@@ -114,6 +107,7 @@ jobs:
             zlib-dev
 
       - name: Install libbpf-dev
+        if: matrix.features == 'novendor'
         run: apk add libbpf-dev
         shell: alpine.sh --root {0}
 
