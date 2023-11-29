@@ -1,6 +1,7 @@
 // build.rs
 
 use std::env;
+use std::ffi;
 use std::fs;
 use std::os::fd::AsRawFd as _;
 use std::path;
@@ -128,10 +129,6 @@ fn main() {
         ),
     };
 
-    // create obj_dir if it doesn't exist
-    let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
-    let _ = fs::create_dir(&obj_dir);
-
     if cfg!(feature = "vendored") {
         make_zlib(&compiler, &src_dir, &out_dir);
         make_elfutils(&compiler, &src_dir, &out_dir);
@@ -149,30 +146,7 @@ fn main() {
         compiler.cflags_env()
     };
 
-    let status = process::Command::new("make")
-        .arg("install")
-        .arg("-j")
-        .arg(&format!("{}", num_cpus::get()))
-        .env("BUILD_STATIC_ONLY", "y")
-        .env("PREFIX", "/")
-        .env("LIBDIR", "")
-        .env("OBJDIR", &obj_dir)
-        .env("DESTDIR", &out_dir)
-        .env("CC", compiler.path())
-        .env("CFLAGS", cflags)
-        .current_dir(&src_dir.join("libbpf/src"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
-
-    let status = process::Command::new("make")
-        .arg("clean")
-        .current_dir(&src_dir.join("libbpf/src"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
+    make_libbpf(&compiler, &cflags, &src_dir, &out_dir);
 
     println!(
         "cargo:rustc-link-search=native={}",
@@ -306,6 +280,42 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     let status = process::Command::new("make")
         .arg("distclean")
         .current_dir(&src_dir.join("elfutils"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+}
+
+fn make_libbpf(
+    compiler: &cc::Tool,
+    cflags: &ffi::OsStr,
+    src_dir: &path::Path,
+    out_dir: &path::Path,
+) {
+    // create obj_dir if it doesn't exist
+    let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
+    let _ = fs::create_dir(&obj_dir);
+
+    let status = process::Command::new("make")
+        .arg("install")
+        .arg("-j")
+        .arg(&format!("{}", num_cpus::get()))
+        .env("BUILD_STATIC_ONLY", "y")
+        .env("PREFIX", "/")
+        .env("LIBDIR", "")
+        .env("OBJDIR", &obj_dir)
+        .env("DESTDIR", out_dir)
+        .env("CC", compiler.path())
+        .env("CFLAGS", cflags)
+        .current_dir(&src_dir.join("libbpf/src"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    let status = process::Command::new("make")
+        .arg("clean")
+        .current_dir(&src_dir.join("libbpf/src"))
         .status()
         .expect("could not execute make");
 
