@@ -6,29 +6,30 @@ on:
 jobs:
   test-gnu:
     # dynamically linked glibc
-    name: Test on Ubuntu ${{ matrix.os-arch }} (${{ matrix.features }})
+    name: Test on Ubuntu ${{ matrix.os-arch }} (${{ matrix.args }})
     strategy:
       matrix:
         include:
           - rust-target: x86_64-unknown-linux-gnu
             os-target: x86_64-linux-gnu
             os-arch: amd64
-            features: ''
+            args: ''
 
           - rust-target: x86_64-unknown-linux-gnu
             os-target: x86_64-linux-gnu
             os-arch: amd64
-            features: novendor
+            args: --features=novendor
+            install-sys-libbpf: y
 
           - rust-target: aarch64-unknown-linux-gnu
             os-target: aarch64-linux-gnu
             os-arch: arm64
-            features: ''
+            args: ''
 
           - rust-target: powerpc64le-unknown-linux-gnu
             os-target: powerpc64le-linux-gnu
             os-arch: ppc64el
-            features: ''
+            args: ''
     runs-on: ubuntu-latest
     env:
       CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
@@ -61,7 +62,7 @@ jobs:
               zlib1g-dev:${{ matrix.os-arch }}
 
       - name: Install libbpf-dev
-        if: matrix.features == 'novendor'
+        if: matrix.install-sys-libbpf == 'y'
         run: sudo apt-get install libbpf-dev:${{ matrix.os-arch }}
 
       - name: Install linker for ${{ matrix.os-target }}
@@ -73,20 +74,21 @@ jobs:
         with:
           targets: ${{ matrix.rust-target }}
 
-      - run: cargo build --features "${{ matrix.features }}"
+      - run: cargo build ${{ matrix.args }}
 
-      - run: cargo test --features "${{ matrix.features }}"
+      - run: cargo test ${{ matrix.args }}
         if: matrix.os-arch == 'amd64'
 
   test-musl:
     # dynamically linked musl libc
-    name: Test on Alpine Linux x86_64 (${{ matrix.features }})
+    name: Test on Alpine Linux x86_64 (${{ matrix.args }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        features:
-          - ''
-          - novendor
+        include:
+          - args: ''
+          - args: --features=novendor
+            install-sys-libbpf: y
     env:
       CARGO_TERM_VERBOSE: 'true'
     steps:
@@ -107,14 +109,14 @@ jobs:
             zlib-dev
 
       - name: Install libbpf-dev
-        if: matrix.features == 'novendor'
+        if: matrix.install-sys-libbpf == 'y'
         run: apk add libbpf-dev
         shell: alpine.sh --root {0}
 
-      - run: cargo build --features "${{ matrix.features }}"
+      - run: cargo build ${{ matrix.args }}
         shell: alpine.sh {0}
 
-      - run: cargo test --features "${{ matrix.features }}"
+      - run: cargo test ${{ matrix.args }}
         shell: alpine.sh {0}
 
   test-libbpf-rs:
