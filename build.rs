@@ -162,6 +162,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static=bpf");
     println!("cargo:include={}/include", out_dir.to_string_lossy());
 
+    println!("cargo:rerun-if-env-changed=LD_LIBRARY_PATH");
     if let Ok(ld_path) = env::var("LD_LIBRARY_PATH") {
         for path in ld_path.split(':') {
             if !path.is_empty() {
