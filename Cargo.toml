@@ -36,6 +36,25 @@ num_cpus = "^1.16.0"
 crate-type = ["lib", "staticlib"]
 
 [features]
+default = ["vendored-libbpf"]
+# Don't vendor anything. This feature is deprecated. Simply build without
+# any features instead.
 novendor = []
-static = []
-vendored = ["static"]
+# Meta-feature to use vendored versions of all dependencies.
+vendored = ["vendored-libbpf", "vendored-libelf", "vendored-zlib"]
+# Use vendored `libbpf`. Implies linking it statically.
+vendored-libbpf = ["static-libbpf"]
+# Use vendored `libelf`. Implies linking it statically.
+vendored-libelf = ["static-libelf"]
+# Use vendored `zlib`. Implies linking it statically.
+vendored-zlib = ["static-zlib"]
+# Meta-feature to link against all dependencies statically.
+static = ["static-libbpf", "static-libelf", "static-zlib"]
+# Link libbpf statically.
+static-libbpf = []
+# Link libelf statically. Implies linking libbpf statically, because libbpf is
+# the libelf consumer.
+static-libelf = ["static-libbpf"]
+# Link zlib statically. Implies linking libbpf statically, because libbpf is
+# the libelf consumer.
+static-zlib = ["static-libbpf"]

@@ -6,6 +6,7 @@
 
 include!("bindings.rs");
 
+#[cfg(feature = "vendored-libbpf")]
 macro_rules! header {
     ($file:literal) => {
         ($file, include_str!(concat!("../libbpf/src/", $file)))
@@ -15,7 +16,7 @@ macro_rules! header {
 /// Vendored libbpf headers
 ///
 /// Tuple format is: (header filename, header contents)
-#[cfg(not(feature = "novendor"))]
+#[cfg(feature = "vendored-libbpf")]
 pub const API_HEADERS: [(&str, &str); 10] = [
     header!("bpf.h"),
     header!("libbpf.h"),
