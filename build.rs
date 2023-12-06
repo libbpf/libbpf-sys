@@ -91,7 +91,12 @@ fn library_prefix() -> String {
 }
 
 fn pkg_check(pkg: &str) {
-    if process::Command::new(pkg).status().is_err() {
+    if process::Command::new(pkg)
+        .stdout(process::Stdio::null())
+        .stderr(process::Stdio::null())
+        .status()
+        .is_err()
+    {
         panic!(
             "{} is required to compile libbpf-sys using the vendored copy of libbpf",
             pkg
