@@ -80,16 +80,6 @@ fn generate_bindings(src_dir: path::PathBuf) {
 #[cfg(not(feature = "bindgen"))]
 fn generate_bindings(_: path::PathBuf) {}
 
-#[cfg(feature = "static")]
-fn library_prefix() -> String {
-    "static=".to_string()
-}
-
-#[cfg(not(feature = "static"))]
-fn library_prefix() -> String {
-    "".to_string()
-}
-
 fn pkg_check(pkg: &str) {
     if process::Command::new(pkg)
         .stdout(process::Stdio::null())
@@ -98,7 +88,7 @@ fn pkg_check(pkg: &str) {
         .is_err()
     {
         panic!(
-            "{} is required to compile libbpf-sys using the vendored copy of libbpf",
+            "{} is required to compile libbpf-sys with the selected set of features",
             pkg
         );
     }
@@ -109,17 +99,33 @@ fn main() {
 
     generate_bindings(src_dir.clone());
 
+    let vendored_libbpf = cfg!(feature = "vendored-libbpf");
+    let vendored_libelf = cfg!(feature = "vendored-libelf");
+    let vendored_zlib = cfg!(feature = "vendored-zlib");
+    println!("Using feature vendored-libbpf={}", vendored_libbpf);
+    println!("Using feature vendored-libelf={}", vendored_libelf);
+    println!("Using feature vendored-zlib={}", vendored_zlib);
+
+    let static_libbpf = cfg!(feature = "static-libbpf");
+    let static_libelf = cfg!(feature = "static-libelf");
+    let static_zlib = cfg!(feature = "static-zlib");
+    println!("Using feature static-libbpf={}", static_libbpf);
+    println!("Using feature static-libelf={}", static_libelf);
+    println!("Using feature static-zlib={}", static_zlib);
+
     if cfg!(feature = "novendor") {
-        println!("cargo:rustc-link-lib={}bpf\n", library_prefix());
+        println!("cargo:warning=the `novendor` feature of `libbpf-sys` is deprecated; build without features instead");
+        println!(
+            "cargo:rustc-link-lib={}bpf",
+            if static_libbpf { "static=" } else { "" }
+        );
         return;
     }
 
     let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     // check for all necessary compilation tools
-    pkg_check("make");
-    pkg_check("pkg-config");
-    if cfg!(feature = "vendored") {
+    if vendored_libelf {
         pkg_check("autoreconf");
         pkg_check("autopoint");
         pkg_check("flex");
@@ -127,39 +133,49 @@ fn main() {
         pkg_check("gawk");
     }
 
-    let compiler = match cc::Build::new().try_get_compiler() {
-        Ok(compiler) => compiler,
-        Err(_) => panic!(
-            "a C compiler is required to compile libbpf-sys using the vendored copy of libbpf"
-        ),
+    let (compiler, mut cflags) = if vendored_libbpf || vendored_libelf || vendored_zlib {
+        pkg_check("make");
+        pkg_check("pkg-config");
+
+        let compiler = cc::Build::new().try_get_compiler().expect(
+            "a C compiler is required to compile libbpf-sys using the vendored copy of libbpf",
+        );
+        let cflags = compiler.cflags_env();
+        (Some(compiler), cflags)
+    } else {
+        (None, ffi::OsString::new())
     };
 
-    if cfg!(feature = "vendored") {
-        make_zlib(&compiler, &src_dir, &out_dir);
-        make_elfutils(&compiler, &src_dir, &out_dir);
+    if vendored_zlib {
+        make_zlib(compiler.as_ref().unwrap(), &src_dir, &out_dir);
+        cflags.push(&format!(" -I{}/zlib/", src_dir.display()));
     }
 
-    let cflags = if cfg!(feature = "vendored") {
-        // make sure that the headerfiles from libelf and zlib
-        // for libbpf come from the vendorized version
-
-        let mut cflags = compiler.cflags_env();
+    if vendored_libelf {
+        make_elfutils(compiler.as_ref().unwrap(), &src_dir, &out_dir);
         cflags.push(&format!(" -I{}/elfutils/libelf/", src_dir.display()));
-        cflags.push(&format!(" -I{}/zlib/", src_dir.display()));
-        cflags
-    } else {
-        compiler.cflags_env()
-    };
+    }
 
-    make_libbpf(&compiler, &cflags, &src_dir, &out_dir);
+    if vendored_libbpf {
+        make_libbpf(compiler.as_ref().unwrap(), &cflags, &src_dir, &out_dir);
+    }
 
     println!(
         "cargo:rustc-link-search=native={}",
         out_dir.to_string_lossy()
     );
-    println!("cargo:rustc-link-lib={}elf", library_prefix());
-    println!("cargo:rustc-link-lib={}z", library_prefix());
-    println!("cargo:rustc-link-lib=static=bpf");
+    println!(
+        "cargo:rustc-link-lib={}elf",
+        if static_libelf { "static=" } else { "" }
+    );
+    println!(
+        "cargo:rustc-link-lib={}z",
+        if static_zlib { "static=" } else { "" }
+    );
+    println!(
+        "cargo:rustc-link-lib={}bpf",
+        if static_libbpf { "static=" } else { "" }
+    );
     println!("cargo:include={}/include", out_dir.to_string_lossy());
 
     println!("cargo:rerun-if-env-changed=LD_LIBRARY_PATH");
