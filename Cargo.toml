@@ -1,6 +1,6 @@
 [package]
 name = "libbpf-sys"
-version = "1.2.1+v1.2.0"
+version = "1.3.0+v1.3.0"
 description = "Rust bindings to libbpf from the Linux kernel"
 readme = "README.md"
 repository = "https://github.com/libbpf/libbpf-sys"
@@ -37,8 +37,9 @@ crate-type = ["lib", "staticlib"]
 
 [features]
 default = ["vendored-libbpf"]
-# Don't vendor anything. This feature is deprecated. Simply build without
-# any features instead.
+# Don't vendor anything.
+# This feature is for backward-compatibility only.
+# Set default-features = false instead.
 novendor = []
 # Meta-feature to use vendored versions of all dependencies.
 vendored = ["vendored-libbpf", "vendored-libelf", "vendored-zlib"]
