@@ -26,10 +26,10 @@ github = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
-bindgen = { version = "^0.66", optional = true }
-cc = "^1.0.79"
-pkg-config = "^0.3.27"
-nix = { version = "^0.27.0", default-features = false, features = ["fs"] }
+bindgen = { version = "^0.69.2", optional = true }
+cc = "^1.0.83"
+pkg-config = "^0.3.29"
+nix = { version = "^0.27.1", default-features = false, features = ["fs"] }
 num_cpus = "^1.16.0"
 
 [lib]
