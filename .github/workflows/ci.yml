@@ -142,17 +142,18 @@ jobs:
 
       - name: Build libbpf-rs with libbpf-sys
         run: |
+          dir=$(pwd)
+          cd /tmp/
           cargo init --bin libbpf-rs-test-project
           cd libbpf-rs-test-project
-          # Add the most recent *published* version of libbpf-rs (as opposed to,
-          # say, cloning a development snapshot, which would just introduce
-          # additional uncertainty into the process).
-          cargo add libbpf-rs
-          # Override libbpf-sys in use with our current one.
+          # Add libbpf-rs dependency and override libbpf-sys in use with our
+          # current one.
           cat >> Cargo.toml <<EOF
+          libbpf-rs = "*"
           [patch.crates-io]
-          libbpf-sys = { path = '..' }
+          libbpf-sys = { path = "${dir}" }
           EOF
+          cargo update
           cargo build
 
   publish:
