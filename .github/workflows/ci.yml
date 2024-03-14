@@ -30,7 +30,7 @@ jobs:
             os-target: powerpc64le-linux-gnu
             os-arch: ppc64el
             args: ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
       CARGO_TERM_VERBOSE: 'true'
@@ -82,7 +82,7 @@ jobs:
   test-musl:
     # dynamically linked musl libc
     name: Test on Alpine Linux x86_64 (${{ matrix.args }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
@@ -123,7 +123,7 @@ jobs:
     # check that libbpf-rs, one of the main consumers of the library, works with
     # this version of libbpf-sys
     name: Test libbpf-rs integration
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CARGO_TERM_VERBOSE: 'true'
     steps:
@@ -163,7 +163,7 @@ jobs:
       - test-gnu
       - test-musl
       - test-libbpf-rs
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
