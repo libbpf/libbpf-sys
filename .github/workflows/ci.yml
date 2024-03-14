@@ -25,11 +25,6 @@ jobs:
             os-target: aarch64-linux-gnu
             os-arch: arm64
             args: ''
-
-          - rust-target: powerpc64le-unknown-linux-gnu
-            os-target: powerpc64le-linux-gnu
-            os-arch: ppc64el
-            args: ''
     runs-on: ubuntu-22.04
     env:
       CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
