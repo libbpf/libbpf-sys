@@ -26,7 +26,7 @@ RUN \
 
 ENTRYPOINT \
 	source $HOME/.cargo/env; \
-	cargo build --features bindgen --release --verbose;
+	cargo build --features bindgen-source --release --verbose;
 EOF
 
 ${DOCKER} run --platform linux/amd64 --rm -v "$(pwd):/usr/local/src/libbpf-sys" libbpf-sys-builder
