@@ -41,6 +41,12 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .collect(),
     );
 
+    #[cfg(feature = "bindgen-source")]
+    let out_dir = &src_dir.join("src");
+    #[cfg(not(feature = "bindgen-source"))]
+    let out_dir =
+        &path::PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR should always be set"));
+
     bindgen::Builder::default()
         .derive_default(true)
         .explicit_padding(true)
@@ -73,7 +79,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         ))
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file(&src_dir.join("src/bindings.rs"))
+        .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings");
 }
 
@@ -254,7 +260,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
         .collect();
 
     #[cfg(target_arch = "aarch64")]
-    cflags.push_str(" -Wno-error=stringop-overflow"); 
+    cflags.push_str(" -Wno-error=stringop-overflow");
     cflags.push_str(&format!(" -I{}/zlib/", src_dir.display()));
 
     let status = process::Command::new("autoreconf")
