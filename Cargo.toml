@@ -59,3 +59,6 @@ static-libelf = ["static-libbpf"]
 # Link zlib statically. Implies linking libbpf statically, because libbpf is
 # the zlib consumer.
 static-zlib = ["static-libbpf"]
+# Generate bindings into source directory, should only be used for local
+# binding source updating. User should use "bindgen" feature flag instead.
+bindgen-source = ["bindgen"]
