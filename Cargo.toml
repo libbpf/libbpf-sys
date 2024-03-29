@@ -57,5 +57,5 @@ static-libbpf = []
 # the libelf consumer.
 static-libelf = ["static-libbpf"]
 # Link zlib statically. Implies linking libbpf statically, because libbpf is
-# the libelf consumer.
+# the zlib consumer.
 static-zlib = ["static-libbpf"]
