@@ -3,7 +3,7 @@
 	url = https://github.com/libbpf/libbpf.git
 [submodule "elfutils"]
 	path = elfutils
-	url = https://sourceware.org/git/elfutils.git
+	url = https://github.com/libbpf/elfutils-mirror.git
 [submodule "zlib"]
 	path = zlib
 	url = https://github.com/madler/zlib.git
