@@ -2130,7 +2130,8 @@ pub const BPF_MAP_TYPE_TASK_STORAGE: bpf_map_type = 29;
 pub const BPF_MAP_TYPE_BLOOM_FILTER: bpf_map_type = 30;
 pub const BPF_MAP_TYPE_USER_RINGBUF: bpf_map_type = 31;
 pub const BPF_MAP_TYPE_CGRP_STORAGE: bpf_map_type = 32;
-pub const __MAX_BPF_MAP_TYPE: bpf_map_type = 33;
+pub const BPF_MAP_TYPE_ARENA: bpf_map_type = 33;
+pub const __MAX_BPF_MAP_TYPE: bpf_map_type = 34;
 pub type bpf_map_type = ::std::os::raw::c_uint;
 pub const BPF_PROG_TYPE_UNSPEC: bpf_prog_type = 0;
 pub const BPF_PROG_TYPE_SOCKET_FILTER: bpf_prog_type = 1;
@@ -2253,6 +2254,8 @@ pub const BPF_F_KPROBE_MULTI_RETURN: _bindgen_ty_62 = 1;
 pub type _bindgen_ty_62 = ::std::os::raw::c_uint;
 pub const BPF_F_UPROBE_MULTI_RETURN: _bindgen_ty_63 = 1;
 pub type _bindgen_ty_63 = ::std::os::raw::c_uint;
+pub const BPF_ADDR_SPACE_CAST: bpf_addr_space_cast = 1;
+pub type bpf_addr_space_cast = ::std::os::raw::c_uint;
 pub const BPF_ANY: _bindgen_ty_64 = 0;
 pub const BPF_NOEXIST: _bindgen_ty_64 = 1;
 pub const BPF_EXIST: _bindgen_ty_64 = 2;
@@ -2275,6 +2278,8 @@ pub const BPF_F_LINK: _bindgen_ty_65 = 8192;
 pub const BPF_F_PATH_FD: _bindgen_ty_65 = 16384;
 pub const BPF_F_VTYPE_BTF_OBJ_FD: _bindgen_ty_65 = 32768;
 pub const BPF_F_TOKEN_FD: _bindgen_ty_65 = 65536;
+pub const BPF_F_SEGV_ON_FAULT: _bindgen_ty_65 = 131072;
+pub const BPF_F_NO_USER_CONV: _bindgen_ty_65 = 262144;
 pub type _bindgen_ty_65 = ::std::os::raw::c_uint;
 pub const BPF_STATS_RUN_TIME: bpf_stats_type = 0;
 pub type bpf_stats_type = ::std::os::raw::c_uint;
@@ -2645,7 +2650,16 @@ impl bpf_attr__bindgen_ty_10 {
 pub struct bpf_attr__bindgen_ty_11 {
     pub name: __u64,
     pub prog_fd: __u32,
-    pub __bindgen_padding_0: [u8; 4usize],
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
+    pub cookie: __u64,
+}
+impl bpf_attr__bindgen_ty_11 {
+    #[inline]
+    pub fn new_bitfield_1() -> __BindgenBitfieldUnit<[u8; 4usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
+        __bindgen_bitfield_unit
+    }
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -5368,6 +5382,28 @@ extern "C" {
         prog_cnt: *mut __u32,
     ) -> ::std::os::raw::c_int;
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct bpf_raw_tp_opts {
+    pub sz: size_t,
+    pub tp_name: *const ::std::os::raw::c_char,
+    pub cookie: __u64,
+}
+impl Default for bpf_raw_tp_opts {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+extern "C" {
+    pub fn bpf_raw_tracepoint_open_opts(
+        prog_fd: ::std::os::raw::c_int,
+        opts: *mut bpf_raw_tp_opts,
+    ) -> ::std::os::raw::c_int;
+}
 extern "C" {
     pub fn bpf_raw_tracepoint_open(
         name: *const ::std::os::raw::c_char,
@@ -5451,8 +5487,8 @@ extern "C" {
         opts: *mut bpf_token_create_opts,
     ) -> ::std::os::raw::c_int;
 }
-pub type va_list = __builtin_va_list;
 pub type __gnuc_va_list = __builtin_va_list;
+pub type va_list = __builtin_va_list;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_header {
@@ -6512,10 +6548,23 @@ extern "C" {
         opts: *const bpf_tracepoint_opts,
     ) -> *mut bpf_link;
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_raw_tracepoint_opts {
+    pub sz: size_t,
+    pub cookie: __u64,
+}
 extern "C" {
     pub fn bpf_program__attach_raw_tracepoint(
         prog: *const bpf_program,
         tp_name: *const ::std::os::raw::c_char,
+    ) -> *mut bpf_link;
+}
+extern "C" {
+    pub fn bpf_program__attach_raw_tracepoint_opts(
+        prog: *const bpf_program,
+        tp_name: *const ::std::os::raw::c_char,
+        opts: *mut bpf_raw_tracepoint_opts,
     ) -> *mut bpf_link;
 }
 #[repr(C)]
@@ -6790,7 +6839,7 @@ extern "C" {
 }
 extern "C" {
     pub fn bpf_map__initial_value(
-        map: *mut bpf_map,
+        map: *const bpf_map,
         psize: *mut size_t,
     ) -> *mut ::std::os::raw::c_void;
 }
