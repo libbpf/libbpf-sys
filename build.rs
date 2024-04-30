@@ -219,7 +219,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
-        .arg(&format!("{}", num_cpus::get()))
+        .arg(&format!("{}", num_cpus()))
         .current_dir(&src_dir.join("zlib"))
         .status()
         .expect("could not execute make");
@@ -297,7 +297,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
-        .arg(&format!("{}", num_cpus::get()))
+        .arg(&format!("{}", num_cpus()))
         .arg("BUILD_STATIC_ONLY=y")
         .current_dir(&src_dir.join("elfutils"))
         .status()
@@ -327,7 +327,7 @@ fn make_libbpf(
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
-        .arg(&format!("{}", num_cpus::get()))
+        .arg(&format!("{}", num_cpus()))
         .env("BUILD_STATIC_ONLY", "y")
         .env("PREFIX", "/")
         .env("LIBDIR", "")
@@ -348,4 +348,8 @@ fn make_libbpf(
         .expect("could not execute make");
 
     assert!(status.success(), "make failed");
+}
+
+fn num_cpus() -> usize {
+    std::thread::available_parallelism().map_or(1, |count| count.get())
 }
