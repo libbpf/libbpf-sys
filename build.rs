@@ -3,7 +3,6 @@
 use std::env;
 use std::ffi;
 use std::fs;
-use std::os::fd::AsRawFd as _;
 use std::path;
 use std::process;
 
@@ -200,8 +199,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
     let file = std::fs::File::open(src_dir.join("zlib/README")).unwrap();
-    let fd = file.as_raw_fd();
-    fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
+    let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
     let status = process::Command::new("./configure")
         .arg("--static")
@@ -241,8 +239,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
     let file = std::fs::File::open(src_dir.join("elfutils/README")).unwrap();
-    let fd = file.as_raw_fd();
-    fcntl::flock(fd, fcntl::FlockArg::LockExclusive).unwrap();
+    let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
     let flags = compiler
         .cflags_env()
