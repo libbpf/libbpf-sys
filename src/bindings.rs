@@ -5486,8 +5486,8 @@ extern "C" {
         opts: *mut bpf_token_create_opts,
     ) -> ::std::os::raw::c_int;
 }
-pub type __gnuc_va_list = __builtin_va_list;
 pub type va_list = __builtin_va_list;
+pub type __gnuc_va_list = __builtin_va_list;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_header {
@@ -7045,6 +7045,11 @@ pub struct ring_buffer {
 pub struct ring {
     _unused: [u8; 0],
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct user_ring_buffer {
+    _unused: [u8; 0],
+}
 pub type ring_buffer_sample_fn = ::std::option::Option<
     unsafe extern "C" fn(
         ctx: *mut ::std::os::raw::c_void,
@@ -7090,6 +7095,42 @@ extern "C" {
 }
 extern "C" {
     pub fn ring_buffer__ring(rb: *mut ring_buffer, idx: ::std::os::raw::c_uint) -> *mut ring;
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct user_ring_buffer_opts {
+    pub sz: size_t,
+}
+extern "C" {
+    pub fn user_ring_buffer__new(
+        map_fd: ::std::os::raw::c_int,
+        opts: *const user_ring_buffer_opts,
+    ) -> *mut user_ring_buffer;
+}
+extern "C" {
+    pub fn user_ring_buffer__reserve(
+        rb: *mut user_ring_buffer,
+        size: __u32,
+    ) -> *mut ::std::os::raw::c_void;
+}
+extern "C" {
+    pub fn user_ring_buffer__reserve_blocking(
+        rb: *mut user_ring_buffer,
+        size: __u32,
+        timeout_ms: ::std::os::raw::c_int,
+    ) -> *mut ::std::os::raw::c_void;
+}
+extern "C" {
+    pub fn user_ring_buffer__submit(rb: *mut user_ring_buffer, sample: *mut ::std::os::raw::c_void);
+}
+extern "C" {
+    pub fn user_ring_buffer__discard(
+        rb: *mut user_ring_buffer,
+        sample: *mut ::std::os::raw::c_void,
+    );
+}
+extern "C" {
+    pub fn user_ring_buffer__free(rb: *mut user_ring_buffer);
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
