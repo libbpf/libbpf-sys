@@ -36,6 +36,8 @@ crate-type = ["lib", "staticlib"]
 
 [features]
 default = ["vendored-libbpf"]
+# Android platform support
+android = [ "bindgen", "vendored" ]
 # Don't vendor anything.
 # This feature is for backward-compatibility only.
 # Set default-features = false instead.

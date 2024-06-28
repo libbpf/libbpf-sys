@@ -11,3 +11,8 @@
 #include "libbpf/src/btf.h"
 #include "libbpf/src/libbpf.h"
 #endif /* __LIBBPF_SYS_NOVENDOR */
+
+#if defined (__aarch64__) || defined (__arm__)
+#include <stdarg.h>
+typedef va_list __va_list_tag;
+#endif
