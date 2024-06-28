@@ -159,8 +159,8 @@ jobs:
         id: setup-ndk
         with:
           ndk-version: r26d
-          local-cache: true
-          add-to-path: false
+          # local-cache: true
+          # add-to-path: false
       
       - name: Cargo test no run
         run: cargo test --no-run --features android
