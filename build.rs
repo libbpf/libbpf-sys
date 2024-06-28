@@ -226,11 +226,11 @@ where
 {
     let project = project_dir.as_ref();
 
-    unsafe {
-        nix::libc::chmod(format!("{project}\0").as_ptr() as _, 0777);
-    }
+    let prog = "./configure";
 
-    let status = subproc("./configure", project, args);
+    let _ = subproc("chmod", project, &["+x", prog]);
+
+    let status = subproc(prog, project, args);
 
     assert!(
         status.success(),
