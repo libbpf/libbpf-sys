@@ -2,9 +2,9 @@
 
 use std::env;
 use std::ffi;
-use std::fs;
 use std::path;
 use std::process;
+use std::process::ExitStatus;
 
 use nix::fcntl;
 
@@ -61,7 +61,6 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_function("perf_.+")
         .allowlist_function("ring_buffer_.+")
         .allowlist_function("user_ring_buffer_.+")
-        .allowlist_function("vdprintf")
         .allowlist_type("bpf_.+")
         .allowlist_type("btf_.+")
         .allowlist_type("xdp_.+")
@@ -70,6 +69,10 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_var("BTF_.+")
         .allowlist_var("XDP_.+")
         .allowlist_var("PERF_.+")
+        .allowlist_type("__va_list_tag")
+        .blocklist_type("vdprintf")
+        .blocklist_type("libbpf_print_fn_t")
+        .blocklist_function("libbpf_set_print")
         .parse_callbacks(Box::new(ignored_macros))
         .header("bindings.h")
         .clang_arg(format!("-I{}", src_dir.join("libbpf/include").display()))
@@ -105,16 +108,20 @@ fn main() {
 
     generate_bindings(src_dir.clone());
 
-    let vendored_libbpf = cfg!(feature = "vendored-libbpf");
-    let vendored_libelf = cfg!(feature = "vendored-libelf");
-    let vendored_zlib = cfg!(feature = "vendored-zlib");
+    let android = build_android();
+
+    let vendored_libbpf = cfg!(feature = "vendored-libbpf") || android;
+    let vendored_libelf = cfg!(feature = "vendored-libelf") || android;
+    let vendored_zlib = cfg!(feature = "vendored-zlib") || android;
+
     println!("Using feature vendored-libbpf={}", vendored_libbpf);
     println!("Using feature vendored-libelf={}", vendored_libelf);
     println!("Using feature vendored-zlib={}", vendored_zlib);
 
-    let static_libbpf = cfg!(feature = "static-libbpf");
-    let static_libelf = cfg!(feature = "static-libelf");
-    let static_zlib = cfg!(feature = "static-zlib");
+    let static_libbpf = cfg!(feature = "static-libbpf") || android;
+    let static_libelf = cfg!(feature = "static-libelf") || android;
+    let static_zlib = cfg!(feature = "static-zlib") || android;
+
     println!("Using feature static-libbpf={}", static_libbpf);
     println!("Using feature static-libelf={}", static_libelf);
     println!("Using feature static-zlib={}", static_zlib);
@@ -137,10 +144,11 @@ fn main() {
         pkg_check("flex");
         pkg_check("bison");
         pkg_check("gawk");
+        pkg_check("aclocal");
     }
 
     let (compiler, mut cflags) = if vendored_libbpf || vendored_libelf || vendored_zlib {
-        pkg_check("make");
+        // pkg_check("make");
         pkg_check("pkg-config");
 
         let compiler = cc::Build::new().try_get_compiler().expect(
@@ -194,160 +202,237 @@ fn main() {
     }
 }
 
-fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
+fn build_android() -> bool {
+    if cfg!(feature = "android") {
+        true
+    } else {
+        env::var("CARGO_CFG_TARGET_OS")
+            .expect("CARGO_CFG_TARGET_OS not set")
+            .eq("android")
+    }
+}
+
+fn subproc(prog: &str, workdir: &str, args: &[&str]) -> ExitStatus {
+    process::Command::new(prog)
+        .current_dir(workdir)
+        .args(args)
+        .status()
+        .expect(&format!("could not execute `{prog}`"))
+}
+
+fn configure<P>(project_dir: P, args: &[&str])
+where
+    P: AsRef<str>,
+{
+    let project = project_dir.as_ref();
+
+    unsafe {
+        nix::libc::chmod(format!("{project}\0").as_ptr() as _, 0777);
+    }
+
+    let status = subproc("./configure", project, args);
+
+    assert!(
+        status.success(),
+        "configure({}) failed: {}",
+        project,
+        status
+    );
+}
+
+fn autoconf<P>(project_dir: P)
+where
+    P: AsRef<str>,
+{
+    let project = project_dir.as_ref();
+
+    let status = subproc("autoreconf", project, &["--install", "--force"]);
+
+    assert!(
+        status.success(),
+        "autoreconfig({}) failed: {}",
+        project,
+        status
+    );
+}
+
+fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, _: &path::Path) {
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
     let file = std::fs::File::open(src_dir.join("zlib/README")).unwrap();
     let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
-    let status = process::Command::new("./configure")
-        .arg("--static")
-        .arg("--prefix")
-        .arg(".")
-        .arg("--libdir")
-        .arg(out_dir)
-        .env("CC", compiler.path())
-        .env("CFLAGS", compiler.cflags_env())
-        .current_dir(&src_dir.join("zlib"))
-        .status()
-        .expect("could not execute make");
+    let zlib_sources = [
+        "adler32.c",
+        "compress.c",
+        "crc32.c",
+        "deflate.c",
+        "gzclose.c",
+        "gzlib.c",
+        "gzread.c",
+        "gzwrite.c",
+        "infback.c",
+        "inffast.c",
+        "inflate.c",
+        "inftrees.c",
+        "trees.c",
+        "uncompr.c",
+        "zutil.c",
+    ];
 
-    assert!(status.success(), "make failed");
+    let cflags = [
+        // We do support hidden visibility, so turn that on.
+        "-DHAVE_HIDDEN",
+        // We do support const, so turn that on.
+        "-DZLIB_CONST",
+        // Enable -O3 as per chromium.
+        "-O3",
+        // "-Wall",
+        // "-Werror",
+        // "-Wno-deprecated-non-prototype",
+        // "-Wno-unused",
+        // "-Wno-unused-parameter",
+    ];
 
-    let status = process::Command::new("make")
-        .arg("install")
-        .arg("-j")
-        .arg(&format!("{}", num_cpus()))
-        .current_dir(&src_dir.join("zlib"))
-        .status()
-        .expect("could not execute make");
+    let project_dir = src_dir.join("zlib");
+    let project_dir = project_dir.to_str().unwrap();
 
-    assert!(status.success(), "make failed");
+    configure(project_dir, &[]);
 
-    let status = process::Command::new("make")
-        .arg("distclean")
-        .current_dir(&src_dir.join("zlib"))
-        .status()
-        .expect("could not execute make");
+    let mut builder = cc::Build::new();
 
-    assert!(status.success(), "make failed");
+    builder.include(project_dir).files({
+        zlib_sources
+            .iter()
+            .map(|source| format!("{project_dir}/{source}"))
+    });
+
+    if build_android() {
+        for flag in cflags {
+            builder.flag(flag);
+        }
+    } else {
+        for flag in compiler.args() {
+            builder.flag(flag);
+        }
+    }
+
+    builder.flag_if_supported("-w").warnings(false).compile("z")
 }
 
-fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
+fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, _: &path::Path) {
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
     let file = std::fs::File::open(src_dir.join("elfutils/README")).unwrap();
     let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
-    let flags = compiler
-        .cflags_env()
-        .into_string()
-        .expect("failed to get cflags");
-    let mut cflags: String = flags
-        .split_whitespace()
-        .filter_map(|arg| {
-            if arg != "-static" {
-                // compilation fails with -static flag
-                Some(format!(" {arg}"))
-            } else {
-                None
+    let project_dir = src_dir.join("elfutils");
+    let project = project_dir.to_str().unwrap();
+
+    autoconf(project);
+
+    configure(
+        project,
+        &[
+            "--enable-maintainer-mode",
+            "--disable-debuginfod",
+            "--disable-libdebuginfod",
+            "--without-lzma",
+            "--without-bzlib",
+            "--without-zstd",
+        ],
+    );
+
+    let mut builder = cc::Build::new();
+
+    builder
+        .include(project)
+        .include(src_dir.join("zlib"))
+        .include(format!("{project}/lib"))
+        .include(format!("{project}/include"))
+        .include(format!("{project}/libelf"));
+
+    if build_android() {
+        builder
+            .flag("-DHAVE_CONFIG_H")
+            .flag("-D_GNU_SOURCE")
+            .flag("-DNAMES=1000")
+            .flag("-std=gnu99")
+            .flag("-D_FILE_OFFSET_BITS=64")
+            .flag("-includeAndroidFixup.h")
+            .include(src_dir.join("android"));
+    } else {
+        #[cfg(target_arch = "aarch64")]
+        builder.flag("-Wno-error=stringop-overflow");
+
+        builder.compiler(compiler.path());
+
+        for flag in compiler.args() {
+            if flag.ne("-static") {
+                builder.flag(flag);
             }
-        })
-        .collect();
+        }
+    }
 
-    #[cfg(target_arch = "aarch64")]
-    cflags.push_str(" -Wno-error=stringop-overflow");
-    cflags.push_str(&format!(" -I{}/zlib/", src_dir.display()));
+    for entry in std::fs::read_dir(project_dir.join("libelf")).expect("Failed to `read_dir`") {
+        let entry = entry.expect("Failed to `read_dir`");
+        if entry.file_type().unwrap().is_file()
+            && entry.file_name().to_str().unwrap().ends_with(".c")
+        {
+            builder.file(entry.path());
+        }
+    }
 
-    let status = process::Command::new("autoreconf")
-        .arg("--install")
-        .arg("--force")
-        .current_dir(&src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
-
-    // location of libz.a
-    let out_lib = format!("-L{}", out_dir.display());
-    let status = process::Command::new("./configure")
-        .arg("--enable-maintainer-mode")
-        .arg("--disable-debuginfod")
-        .arg("--disable-libdebuginfod")
-        .arg("--without-zstd")
-        .arg("--prefix")
-        .arg(&src_dir.join("elfutils/prefix_dir"))
-        .arg("--libdir")
-        .arg(out_dir)
-        .env("CC", compiler.path())
-        .env("CXX", compiler.path())
-        .env("CFLAGS", &cflags)
-        .env("CXXFLAGS", &cflags)
-        .env("LDFLAGS", &out_lib)
-        .current_dir(&src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
-
-    let status = process::Command::new("make")
-        .arg("install")
-        .arg("-j")
-        .arg(&format!("{}", num_cpus()))
-        .arg("BUILD_STATIC_ONLY=y")
-        .current_dir(&src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
-
-    let status = process::Command::new("make")
-        .arg("distclean")
-        .current_dir(&src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
+    builder
+        .flag_if_supported("-w")
+        .warnings(false)
+        .compile("elf")
 }
 
-fn make_libbpf(
-    compiler: &cc::Tool,
-    cflags: &ffi::OsStr,
-    src_dir: &path::Path,
-    out_dir: &path::Path,
-) {
-    // create obj_dir if it doesn't exist
-    let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
-    let _ = fs::create_dir(&obj_dir);
+fn make_libbpf(compiler: &cc::Tool, _: &ffi::OsStr, src_dir: &path::Path, _: &path::Path) {
+    let project_dir = src_dir.join("libbpf");
 
-    let status = process::Command::new("make")
-        .arg("install")
-        .arg("-j")
-        .arg(&format!("{}", num_cpus()))
-        .env("BUILD_STATIC_ONLY", "y")
-        .env("PREFIX", "/")
-        .env("LIBDIR", "")
-        .env("OBJDIR", &obj_dir)
-        .env("DESTDIR", out_dir)
-        .env("CC", compiler.path())
-        .env("CFLAGS", cflags)
-        .current_dir(&src_dir.join("libbpf/src"))
-        .status()
-        .expect("could not execute make");
+    let project = project_dir.to_str().unwrap();
 
-    assert!(status.success(), "make failed");
+    let mut builder = cc::Build::new();
 
-    let status = process::Command::new("make")
-        .arg("clean")
-        .current_dir(&src_dir.join("libbpf/src"))
-        .status()
-        .expect("could not execute make");
+    builder
+        .include(src_dir)
+        .include(src_dir.join("zlib"))
+        .include(src_dir.join("elfutils").join("libelf"))
+        .include(format!("{project}/src"))
+        .include(format!("{project}/include"))
+        .include(format!("{project}/include/uapi"));
 
-    assert!(status.success(), "make failed");
-}
+    if build_android() {
+        let cflags = ["-DCOMPAT_NEED_REALLOCARRAY"];
 
-fn num_cpus() -> usize {
-    std::thread::available_parallelism().map_or(1, |count| count.get())
+        builder.flag("-includeandroid/android.h");
+
+        for flag in cflags {
+            builder.flag(flag);
+        }
+    } else {
+        builder.compiler(compiler.path());
+
+        for flag in compiler.args() {
+            builder.flag(flag);
+        }
+    }
+
+    for entry in std::fs::read_dir(project_dir.join("src")).expect("Failed to `read_dir`") {
+        let entry = entry.unwrap();
+        if entry.file_type().unwrap().is_file()
+            && entry.file_name().to_str().unwrap().ends_with(".c")
+        {
+            builder.file(entry.path());
+        }
+    }
+
+    builder
+        .flag_if_supported("-w")
+        .warnings(false)
+        .compile("bpf");
 }
