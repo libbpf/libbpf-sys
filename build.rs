@@ -3,10 +3,20 @@
 use std::env;
 use std::ffi;
 use std::fs;
+use std::fs::read_dir;
 use std::path;
+use std::path::Path;
 use std::process;
 
 use nix::fcntl;
+
+
+fn emit_rerun_directives_for_contents(dir: &Path) {
+    for result in read_dir(dir).unwrap() {
+        let file = result.unwrap();
+        println!("cargo:rerun-if-changed={}", file.path().display());
+    }
+}
 
 #[cfg(feature = "bindgen")]
 fn generate_bindings(src_dir: path::PathBuf) {
@@ -195,10 +205,11 @@ fn main() {
 }
 
 fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
+    let src_dir = src_dir.join("zlib");
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
-    let file = std::fs::File::open(src_dir.join("zlib/README")).unwrap();
+    let file = std::fs::File::open(src_dir.join("README")).unwrap();
     let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
     let status = process::Command::new("./configure")
@@ -209,7 +220,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
         .arg(out_dir)
         .env("CC", compiler.path())
         .env("CFLAGS", compiler.cflags_env())
-        .current_dir(&src_dir.join("zlib"))
+        .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
 
@@ -219,7 +230,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
         .arg("install")
         .arg("-j")
         .arg(&format!("{}", num_cpus()))
-        .current_dir(&src_dir.join("zlib"))
+        .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
 
@@ -227,11 +238,12 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
 
     let status = process::Command::new("make")
         .arg("distclean")
-        .current_dir(&src_dir.join("zlib"))
+        .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
 
     assert!(status.success(), "make failed");
+    emit_rerun_directives_for_contents(&src_dir);
 }
 
 fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
@@ -310,6 +322,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
         .expect("could not execute make");
 
     assert!(status.success(), "make failed");
+    emit_rerun_directives_for_contents(&src_dir.join("elfutils").join("src"));
 }
 
 fn make_libbpf(
@@ -318,6 +331,7 @@ fn make_libbpf(
     src_dir: &path::Path,
     out_dir: &path::Path,
 ) {
+    let src_dir = src_dir.join("libbpf/src");
     // create obj_dir if it doesn't exist
     let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
     let _ = fs::create_dir(&obj_dir);
@@ -333,7 +347,7 @@ fn make_libbpf(
         .env("DESTDIR", out_dir)
         .env("CC", compiler.path())
         .env("CFLAGS", cflags)
-        .current_dir(&src_dir.join("libbpf/src"))
+        .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
 
@@ -341,11 +355,12 @@ fn make_libbpf(
 
     let status = process::Command::new("make")
         .arg("clean")
-        .current_dir(&src_dir.join("libbpf/src"))
+        .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
 
     assert!(status.success(), "make failed");
+    emit_rerun_directives_for_contents(&src_dir);
 }
 
 fn num_cpus() -> usize {
