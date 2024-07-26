@@ -5,7 +5,7 @@ DOCKER="docker"
 set -eu -o pipefail
 
 ${DOCKER} build --platform linux/amd64 -t libbpf-sys-builder - <<'EOF'
-FROM amd64/ubuntu:jammy AS libbpf-sys-builder
+FROM ubuntu:jammy AS libbpf-sys-builder
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8

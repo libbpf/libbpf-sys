@@ -5486,8 +5486,8 @@ extern "C" {
         opts: *mut bpf_token_create_opts,
     ) -> ::std::os::raw::c_int;
 }
-pub type __gnuc_va_list = __builtin_va_list;
 pub type va_list = __builtin_va_list;
+pub type __gnuc_va_list = __builtin_va_list;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_header {
