@@ -1,6 +1,6 @@
 [package]
 name = "libbpf-sys"
-version = "1.4.2+v1.4.2"
+version = "1.4.3+v1.4.5"
 description = "Rust bindings to libbpf from the Linux kernel"
 readme = "README.md"
 repository = "https://github.com/libbpf/libbpf-sys"
@@ -27,9 +27,9 @@ maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
 bindgen = { version = "^0.69.4", optional = true }
-cc = "^1.0.90"
+cc = "^1.1.6"
 pkg-config = "^0.3.30"
-nix = { version = "^0.28.0", default-features = false, features = ["fs"] }
+nix = { version = "^0.29.0", default-features = false, features = ["fs"] }
 
 [lib]
 crate-type = ["lib", "staticlib"]
