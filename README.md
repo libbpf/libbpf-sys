@@ -37,6 +37,10 @@ $ git clone --recurse-submodules https://github.com/libbpf/libbpf-sys.git && cd 
 $ cargo build
 ```
 
+#### Environment Variables
+
+- `LIBBPF_SYS_EXTRA_CFLAGS` can be used to pass extra cflags when vendoring libbpf, libz or libelf.
+
 ### Distribution
 
 When you add this crate as a dependency to your project, your resulting binaries will dynamically link with `libz` and `libelf`. This means that the systems where you run your binaries must have these libraries installed.
