@@ -10,7 +10,6 @@ use std::process;
 
 use nix::fcntl;
 
-
 fn emit_rerun_directives_for_contents(dir: &Path) {
     for result in read_dir(dir).unwrap() {
         let file = result.unwrap();
@@ -156,7 +155,13 @@ fn main() {
         let compiler = cc::Build::new().try_get_compiler().expect(
             "a C compiler is required to compile libbpf-sys using the vendored copy of libbpf",
         );
-        let cflags = compiler.cflags_env();
+        let mut cflags = compiler.cflags_env();
+        println!("cargo:rerun-if-env-changed=LIBBPF_SYS_EXTRA_CFLAGS");
+        let extra_cflags = env::var_os("LIBBPF_SYS_EXTRA_CFLAGS").unwrap_or_default();
+        if !extra_cflags.is_empty() {
+            cflags.push(" ");
+            cflags.push(extra_cflags);
+        }
         (Some(compiler), cflags)
     } else {
         (None, ffi::OsString::new())
