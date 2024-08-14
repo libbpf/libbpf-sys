@@ -198,9 +198,9 @@ fn main() {
     );
     println!("cargo:include={}/include", out_dir.to_string_lossy());
 
-    println!("cargo:rerun-if-env-changed=LD_LIBRARY_PATH");
-    if let Ok(ld_path) = env::var("LD_LIBRARY_PATH") {
-        for path in ld_path.split(':') {
+    println!("cargo:rerun-if-env-changed=LIBBPF_SYS_LIBRARY_PATH");
+    if let Ok(lib_path) = env::var("LIBBPF_SYS_LIBRARY_PATH") {
+        for path in lib_path.split(':') {
             if !path.is_empty() {
                 println!("cargo:rustc-link-search=native={}", path);
             }
