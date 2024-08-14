@@ -296,6 +296,19 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
         .arg("--without-zstd")
         .arg("--prefix")
         .arg(&src_dir.join("elfutils/prefix_dir"))
+        .arg("--host")
+        .arg({
+            let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+            let arch = match arch.as_str() {
+                "riscv64gc" => "riscv64",
+                "riscv32gc" => "riscv32",
+                other => other,
+            };
+            let vendor = env::var("CARGO_CFG_TARGET_VENDOR").unwrap();
+            let env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
+            let os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+            format!("{arch}-{vendor}-{os}-{env}")
+        })
         .arg("--libdir")
         .arg(out_dir)
         .env("CC", compiler.path())
