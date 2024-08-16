@@ -157,8 +157,7 @@ fn main() {
         );
         let mut cflags = compiler.cflags_env();
         println!("cargo:rerun-if-env-changed=LIBBPF_SYS_EXTRA_CFLAGS");
-        let extra_cflags = env::var_os("LIBBPF_SYS_EXTRA_CFLAGS").unwrap_or_default();
-        if !extra_cflags.is_empty() {
+        if let Some(extra_cflags) = env::var_os("LIBBPF_SYS_EXTRA_CFLAGS") {
             cflags.push(" ");
             cflags.push(extra_cflags);
         }
