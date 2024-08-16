@@ -292,6 +292,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
         .arg("--enable-maintainer-mode")
         .arg("--disable-debuginfod")
         .arg("--disable-libdebuginfod")
+        .arg("--disable-demangler")
         .arg("--without-zstd")
         .arg("--prefix")
         .arg(&src_dir.join("elfutils/prefix_dir"))
@@ -308,12 +309,24 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
 
     assert!(status.success(), "make failed");
 
+    // Build in elfutils/lib because building libelf requires it.
+    let status = process::Command::new("make")
+        .arg("-j")
+        .arg(&format!("{}", num_cpus()))
+        .arg("BUILD_STATIC_ONLY=y")
+        .current_dir(&src_dir.join("elfutils/lib"))
+        .status()
+        .expect("could not execute make");
+
+    assert!(status.success(), "make failed");
+
+    // Build libelf only
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
         .arg(&format!("{}", num_cpus()))
         .arg("BUILD_STATIC_ONLY=y")
-        .current_dir(&src_dir.join("elfutils"))
+        .current_dir(&src_dir.join("elfutils/libelf"))
         .status()
         .expect("could not execute make");
 
