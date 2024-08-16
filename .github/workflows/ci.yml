@@ -18,6 +18,11 @@ jobs:
           - rust-target: x86_64-unknown-linux-gnu
             os-target: x86_64-linux-gnu
             os-arch: amd64
+            args: '-F static,vendored'
+
+          - rust-target: x86_64-unknown-linux-gnu
+            os-target: x86_64-linux-gnu
+            os-arch: amd64
             args: --no-default-features
             install-sys-libbpf: y
 
@@ -25,6 +30,16 @@ jobs:
             os-target: aarch64-linux-gnu
             os-arch: arm64
             args: ''
+          # Test cross-compilation to aarch64
+          - rust-target: aarch64-unknown-linux-gnu
+            os-target: aarch64-linux-gnu
+            os-arch: arm64
+            args: '-F static,vendored'
+          # Test cross-compilation to riscv64
+          - rust-target: riscv64gc-unknown-linux-gnu
+            os-target: riscv64-linux-gnu
+            os-arch: riscv64
+            args: '-F static,vendored'
     runs-on: ubuntu-22.04
     env:
       CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
@@ -53,6 +68,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install \
               build-essential \
+              autopoint \
+              gettext \
               libelf-dev:${{ matrix.os-arch }} \
               zlib1g-dev:${{ matrix.os-arch }}
 
