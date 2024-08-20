@@ -21,6 +21,26 @@ macro_rules! header {
     };
 }
 
+pub type libbpf_print_fn_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        level: libbpf_print_level,
+        arg1: *const ::std::os::raw::c_char,
+        ap: *mut __va_list_tag,
+    ) -> ::std::os::raw::c_int,
+>;
+
+
+extern "C" {
+
+    pub fn vdprintf(
+        __fd: ::std::os::raw::c_int,
+        __fmt: *const ::std::os::raw::c_char,
+        __args: *mut __va_list_tag,
+    ) -> ::std::os::raw::c_int;
+
+    pub fn libbpf_set_print(fn_: libbpf_print_fn_t) -> libbpf_print_fn_t;
+}
+
 /// Vendored libbpf headers
 ///
 /// Tuple format is: (header filename, header contents)
