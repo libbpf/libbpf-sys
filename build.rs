@@ -1,8 +1,6 @@
 // build.rs
 
 use std::env;
-use std::ffi;
-use std::fs;
 use std::fs::read_dir;
 use std::path;
 use std::path::Path;
@@ -155,35 +153,35 @@ fn main() {
         pkg_check("aclocal");
     }
 
-    let (compiler, mut cflags) = if vendored_libbpf || vendored_libelf || vendored_zlib {
+    let (compiler, cflags) = if vendored_libbpf || vendored_libelf || vendored_zlib {
         pkg_check("pkg-config");
 
         let compiler = cc::Build::new().try_get_compiler().expect(
             "a C compiler is required to compile libbpf-sys using the vendored copy of libbpf",
         );
-        let mut cflags = compiler.cflags_env();
+        let mut cflags = Vec::new();
         println!("cargo:rerun-if-env-changed=LIBBPF_SYS_EXTRA_CFLAGS");
         if let Some(extra_cflags) = env::var_os("LIBBPF_SYS_EXTRA_CFLAGS") {
-            cflags.push(" ");
-            cflags.push(extra_cflags);
+            let flags = extra_cflags.into_string().expect("LIBBPF_SYS_EXTRA_CFLAGS");
+            if let Some(flags) = shlex::split(&flags) {
+                cflags.extend(flags);
+            }
         }
         (Some(compiler), cflags)
     } else {
-        (None, ffi::OsString::new())
+        (None, vec![])
     };
 
     if vendored_zlib {
         make_zlib(compiler.as_ref().unwrap(), &src_dir);
-        cflags.push(format!(" -I{}/zlib/", src_dir.display()));
     }
 
     if vendored_libelf {
-        make_elfutils(compiler.as_ref().unwrap(), &src_dir, &out_dir);
-        cflags.push(format!(" -I{}/elfutils/libelf/", src_dir.display()));
+        make_elfutils(compiler.as_ref().unwrap(), &src_dir);
     }
 
     if vendored_libbpf {
-        make_libbpf(compiler.as_ref().unwrap(), &cflags, &src_dir, &out_dir);
+        make_libbpf(compiler.as_ref().unwrap(), cflags.as_slice(), &src_dir);
     }
 
     println!(
@@ -276,7 +274,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path) {
     emit_rerun_directives_for_contents(&src_dir);
 }
 
-fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, _: &path::Path) {
+fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path) {
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
@@ -368,46 +366,56 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, _: &path::Path) {
     emit_rerun_directives_for_contents(&src_dir.join("elfutils").join("src"));
 }
 
-fn make_libbpf(
-    compiler: &cc::Tool,
-    cflags: &ffi::OsStr,
-    src_dir: &path::Path,
-    out_dir: &path::Path,
-) {
-    let src_dir = src_dir.join("libbpf/src");
-    // create obj_dir if it doesn't exist
-    let obj_dir = path::PathBuf::from(&out_dir.join("obj").into_os_string());
-    let _ = fs::create_dir(&obj_dir);
+fn make_libbpf(compiler: &cc::Tool, flags: &[String], src_dir: &path::Path) {
+    let project_dir = src_dir.join("libbpf");
 
-    let status = process::Command::new("make")
-        .arg("install")
-        .arg("-j")
-        .arg(format!("{}", num_cpus()))
-        .env("BUILD_STATIC_ONLY", "y")
-        .env("PREFIX", "/")
-        .env("LIBDIR", "")
-        .env("OBJDIR", &obj_dir)
-        .env("DESTDIR", out_dir)
-        .env("CC", compiler.path())
-        .env("CFLAGS", cflags)
-        .current_dir(&src_dir)
-        .status()
-        .expect("could not execute make");
+    let project = project_dir.to_str().unwrap();
 
-    assert!(status.success(), "make failed");
+    let mut builder = cc::Build::new();
 
-    let status = process::Command::new("make")
-        .arg("clean")
-        .current_dir(&src_dir)
-        .status()
-        .expect("could not execute make");
+    builder
+        .include(src_dir)
+        .include(src_dir.join("zlib"))
+        .include(src_dir.join("elfutils").join("libelf"))
+        .include(format!("{project}/src"))
+        .include(format!("{project}/include"))
+        .include(format!("{project}/include/uapi"));
 
-    assert!(status.success(), "make failed");
+    flags.iter().for_each(|flag| {
+        builder.flag(flag);
+    });
+
+    if build_android() {
+        let cflags = ["-DCOMPAT_NEED_REALLOCARRAY"];
+
+        builder.flag("-includeandroid/android.h");
+
+        for flag in cflags {
+            builder.flag(flag);
+        }
+    } else {
+        builder.compiler(compiler.path());
+
+        for flag in compiler.args() {
+            builder.flag(flag);
+        }
+    }
+
+    for entry in std::fs::read_dir(project_dir.join("src")).expect("Failed to `read_dir`") {
+        let entry = entry.unwrap();
+        if entry.file_type().unwrap().is_file()
+            && entry.file_name().to_str().unwrap().ends_with(".c")
+        {
+            builder.file(entry.path());
+        }
+    }
+
+    builder
+        .flag_if_supported("-w")
+        .warnings(false)
+        .compile("bpf");
+
     emit_rerun_directives_for_contents(&src_dir);
-}
-
-fn num_cpus() -> usize {
-    std::thread::available_parallelism().map_or(1, |count| count.get())
 }
 
 fn build_android() -> bool {
