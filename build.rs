@@ -276,54 +276,33 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path) {
     emit_rerun_directives_for_contents(&src_dir);
 }
 
-fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
+fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, _: &path::Path) {
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
-    let file = std::fs::File::open(src_dir.join("elfutils/README")).unwrap();
+    let project_dir = src_dir.join("elfutils");
+
+    let file = std::fs::File::open(project_dir.join("README")).unwrap();
     let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
-    let flags = compiler
-        .cflags_env()
-        .into_string()
-        .expect("failed to get cflags");
-    let mut cflags: String = flags
-        .split_whitespace()
-        .filter_map(|arg| {
-            if arg != "-static" {
-                // compilation fails with -static flag
-                Some(format!(" {arg}"))
-            } else {
-                None
-            }
-        })
-        .collect();
+    let libelf_dir = project_dir.join("libelf");
+    let project_dir = project_dir.to_str().unwrap();
 
-    #[cfg(target_arch = "aarch64")]
-    cflags.push_str(" -Wno-error=stringop-overflow");
-    cflags.push_str(&format!(" -I{}/zlib/", src_dir.display()));
+    let mut build_options = vec![
+        "--enable-maintainer-mode",
+        "--disable-debuginfod",
+        "--disable-libdebuginfod",
+        "--without-lzma",
+        "--without-bzlib",
+        "--without-zstd",
+    ]
+    .into_iter()
+    .map(|s| s.to_string())
+    .collect::<Vec<String>>();
 
-    let status = process::Command::new("autoreconf")
-        .arg("--install")
-        .arg("--force")
-        .current_dir(src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
-
-    assert!(status.success(), "make failed");
-
-    // location of libz.a
-    let out_lib = format!("-L{}", out_dir.display());
-    let status = process::Command::new("./configure")
-        .arg("--enable-maintainer-mode")
-        .arg("--disable-debuginfod")
-        .arg("--disable-libdebuginfod")
-        .arg("--disable-demangler")
-        .arg("--without-zstd")
-        .arg("--prefix")
-        .arg(src_dir.join("elfutils/prefix_dir"))
-        .arg("--host")
-        .arg({
+    if !build_android() {
+        build_options.push("--host".to_owned());
+        build_options.push({
             let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
             let arch = match arch.as_str() {
                 "riscv64gc" => "riscv64",
@@ -334,50 +313,58 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
             let env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
             let os = env::var("CARGO_CFG_TARGET_OS").unwrap();
             format!("{arch}-{vendor}-{os}-{env}")
-        })
-        .arg("--libdir")
-        .arg(out_dir)
-        .env("CC", compiler.path())
-        .env("CXX", compiler.path())
-        .env("CFLAGS", &cflags)
-        .env("CXXFLAGS", &cflags)
-        .env("LDFLAGS", &out_lib)
-        .current_dir(src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
+        });
+    }
 
-    assert!(status.success(), "make failed");
+    autoconf(project_dir);
 
-    // Build in elfutils/lib because building libelf requires it.
-    let status = process::Command::new("make")
-        .arg("-j")
-        .arg(format!("{}", num_cpus()))
-        .arg("BUILD_STATIC_ONLY=y")
-        .current_dir(src_dir.join("elfutils/lib"))
-        .status()
-        .expect("could not execute make");
+    configure(project_dir, build_options.iter().map(|s| s.as_str()));
 
-    assert!(status.success(), "make failed");
+    let mut builder = cc::Build::new();
 
-    // Build libelf only
-    let status = process::Command::new("make")
-        .arg("install")
-        .arg("-j")
-        .arg(format!("{}", num_cpus()))
-        .arg("BUILD_STATIC_ONLY=y")
-        .current_dir(src_dir.join("elfutils/libelf"))
-        .status()
-        .expect("could not execute make");
+    builder
+        .flag("-DHAVE_CONFIG_H")
+        .flag("-D_GNU_SOURCE")
+        .include(project_dir)
+        .include(src_dir.join("zlib"))
+        .include(format!("{project_dir}/lib"))
+        .include(format!("{project_dir}/include"))
+        .include(format!("{project_dir}/libelf"));
 
-    assert!(status.success(), "make failed");
+    if build_android() {
+        builder
+            .flag("-DNAMES=1000")
+            .flag("-std=gnu99")
+            .flag("-D_FILE_OFFSET_BITS=64")
+            .flag("-includeAndroidFixup.h")
+            .include(src_dir.join("android"));
+    } else {
+        #[cfg(target_arch = "aarch64")]
+        builder.flag("-Wno-error=stringop-overflow");
 
-    let status = process::Command::new("make")
-        .arg("distclean")
-        .current_dir(src_dir.join("elfutils"))
-        .status()
-        .expect("could not execute make");
+        builder.compiler(compiler.path());
 
-    assert!(status.success(), "make failed");
+        for flag in compiler.args() {
+            if flag.ne("-static") {
+                builder.flag(flag);
+            }
+        }
+    }
+
+    for entry in std::fs::read_dir(libelf_dir).expect("Failed to `read_dir`") {
+        let entry = entry.expect("Failed to `read_dir`");
+        if entry.file_type().unwrap().is_file()
+            && entry.file_name().to_str().unwrap().ends_with(".c")
+        {
+            builder.file(entry.path());
+        }
+    }
+
+    builder
+        .flag_if_supported("-w")
+        .warnings(false)
+        .compile("elf");
+
     emit_rerun_directives_for_contents(&src_dir.join("elfutils").join("src"));
 }
 
@@ -463,4 +450,20 @@ where
         .args(args)
         .status()
         .expect(&format!("could not execute `{}`", prog.as_ref()))
+}
+
+fn autoconf<P>(project_dir: P)
+where
+    P: AsRef<str>,
+{
+    let project_dir = project_dir.as_ref();
+
+    let status = subproc("autoreconf", project_dir, ["--install", "--force"]);
+
+    assert!(
+        status.success(),
+        "autoreconf({}) failed: {}",
+        project_dir,
+        status
+    );
 }
