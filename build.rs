@@ -117,16 +117,18 @@ fn main() {
 
     generate_bindings(src_dir.clone());
 
-    let vendored_libbpf = cfg!(feature = "vendored-libbpf");
-    let vendored_libelf = cfg!(feature = "vendored-libelf");
-    let vendored_zlib = cfg!(feature = "vendored-zlib");
+    let android = build_android();
+
+    let vendored_libbpf = cfg!(feature = "vendored-libbpf") || android;
+    let vendored_libelf = cfg!(feature = "vendored-libelf") || android;
+    let vendored_zlib = cfg!(feature = "vendored-zlib") || android;
     println!("Using feature vendored-libbpf={}", vendored_libbpf);
     println!("Using feature vendored-libelf={}", vendored_libelf);
     println!("Using feature vendored-zlib={}", vendored_zlib);
 
-    let static_libbpf = cfg!(feature = "static-libbpf");
-    let static_libelf = cfg!(feature = "static-libelf");
-    let static_zlib = cfg!(feature = "static-zlib");
+    let static_libbpf = cfg!(feature = "static-libbpf") || android;
+    let static_libelf = cfg!(feature = "static-libelf") || android;
+    let static_zlib = cfg!(feature = "static-zlib") || android;
     println!("Using feature static-libbpf={}", static_libbpf);
     println!("Using feature static-libelf={}", static_libelf);
     println!("Using feature static-zlib={}", static_zlib);
@@ -398,4 +400,11 @@ fn make_libbpf(
 
 fn num_cpus() -> usize {
     std::thread::available_parallelism().map_or(1, |count| count.get())
+}
+
+
+fn build_android() -> bool {
+    env::var("CARGO_CFG_TARGET_OS")
+            .expect("CARGO_CFG_TARGET_OS not set")
+            .eq("android")
 }
