@@ -168,6 +168,21 @@ jobs:
           cargo update
           cargo build
 
+  c-header:
+    name: Check generated C header
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install system dependencies
+        run: sudo apt-get install libelf-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo check --features bindgen-source
+      - name: Check that C header is up-to-date
+        run: git diff --exit-code ||
+               (echo "!!!! CHECKED IN C HEADER IS OUTDATED !!!!" && false)
+
   publish:
     name: Publish to crates.io
     if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
