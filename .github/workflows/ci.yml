@@ -2,6 +2,7 @@ name: CI
 on:
   pull_request:
   push:
+  workflow_call:
 
 jobs:
   test-gnu:
@@ -182,42 +183,3 @@ jobs:
       - name: Check that C header is up-to-date
         run: git diff --exit-code ||
                (echo "!!!! CHECKED IN C HEADER IS OUTDATED !!!!" && false)
-
-  publish:
-    name: Publish to crates.io
-    if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
-    needs:
-      - test-gnu
-      - test-musl
-      - test-libbpf-rs
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.rust-target }}
-
-      # This is needed for cargo-pkgid.
-      - name: Fetch dependencies and generate Cargo.lock
-        run: cargo fetch
-
-      - name: Resolve crate version and check git tag name
-        run: |
-          crate_version="$(cargo pkgid | cut -d '#' -f2 | grep -o '[^:]*$')"
-          git_tag=${GITHUB_REF#refs/tags/}
-
-          if [ "$git_tag" != "$crate_version" ]; then
-              printf '::error::%s\n' "Crate version ($crate_version) does not match git tag ($git_tag)"
-              exit 1
-          fi
-
-      - name: Publish to crates.io
-        # no-verify is to skip building; it has been already verified in the test-* jobs.
-        run: cargo publish --no-verify --verbose
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
