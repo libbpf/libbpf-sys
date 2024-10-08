@@ -4,10 +4,14 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-#[cfg(all(feature = "bindgen", not(feature = "bindgen-source")))]
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-#[cfg(any(not(feature = "bindgen"), feature = "bindgen-source"))]
-include!("bindings.rs");
+mod bindings {
+    #[cfg(all(feature = "bindgen", not(feature = "bindgen-source")))]
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+    #[cfg(any(not(feature = "bindgen"), feature = "bindgen-source"))]
+    include!("bindings.rs");
+}
+
+pub use bindings::*;
 
 #[cfg(feature = "vendored-libbpf")]
 macro_rules! header {
