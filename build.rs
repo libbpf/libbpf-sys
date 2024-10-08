@@ -168,12 +168,12 @@ fn main() {
 
     if vendored_zlib {
         make_zlib(compiler.as_ref().unwrap(), &src_dir, &out_dir);
-        cflags.push(&format!(" -I{}/zlib/", src_dir.display()));
+        cflags.push(format!(" -I{}/zlib/", src_dir.display()));
     }
 
     if vendored_libelf {
         make_elfutils(compiler.as_ref().unwrap(), &src_dir, &out_dir);
-        cflags.push(&format!(" -I{}/elfutils/libelf/", src_dir.display()));
+        cflags.push(format!(" -I{}/elfutils/libelf/", src_dir.display()));
     }
 
     if vendored_libbpf {
@@ -233,7 +233,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
-        .arg(&format!("{}", num_cpus()))
+        .arg(format!("{}", num_cpus()))
         .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
@@ -280,7 +280,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     let status = process::Command::new("autoreconf")
         .arg("--install")
         .arg("--force")
-        .current_dir(&src_dir.join("elfutils"))
+        .current_dir(src_dir.join("elfutils"))
         .status()
         .expect("could not execute make");
 
@@ -295,7 +295,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
         .arg("--disable-demangler")
         .arg("--without-zstd")
         .arg("--prefix")
-        .arg(&src_dir.join("elfutils/prefix_dir"))
+        .arg(src_dir.join("elfutils/prefix_dir"))
         .arg("--host")
         .arg({
             let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
@@ -316,7 +316,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
         .env("CFLAGS", &cflags)
         .env("CXXFLAGS", &cflags)
         .env("LDFLAGS", &out_lib)
-        .current_dir(&src_dir.join("elfutils"))
+        .current_dir(src_dir.join("elfutils"))
         .status()
         .expect("could not execute make");
 
@@ -325,9 +325,9 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     // Build in elfutils/lib because building libelf requires it.
     let status = process::Command::new("make")
         .arg("-j")
-        .arg(&format!("{}", num_cpus()))
+        .arg(format!("{}", num_cpus()))
         .arg("BUILD_STATIC_ONLY=y")
-        .current_dir(&src_dir.join("elfutils/lib"))
+        .current_dir(src_dir.join("elfutils/lib"))
         .status()
         .expect("could not execute make");
 
@@ -337,9 +337,9 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
-        .arg(&format!("{}", num_cpus()))
+        .arg(format!("{}", num_cpus()))
         .arg("BUILD_STATIC_ONLY=y")
-        .current_dir(&src_dir.join("elfutils/libelf"))
+        .current_dir(src_dir.join("elfutils/libelf"))
         .status()
         .expect("could not execute make");
 
@@ -347,7 +347,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
 
     let status = process::Command::new("make")
         .arg("distclean")
-        .current_dir(&src_dir.join("elfutils"))
+        .current_dir(src_dir.join("elfutils"))
         .status()
         .expect("could not execute make");
 
@@ -369,7 +369,7 @@ fn make_libbpf(
     let status = process::Command::new("make")
         .arg("install")
         .arg("-j")
-        .arg(&format!("{}", num_cpus()))
+        .arg(format!("{}", num_cpus()))
         .env("BUILD_STATIC_ONLY", "y")
         .env("PREFIX", "/")
         .env("LIBDIR", "")
