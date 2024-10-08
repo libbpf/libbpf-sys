@@ -183,3 +183,23 @@ jobs:
       - name: Check that C header is up-to-date
         run: git diff --exit-code ||
                (echo "!!!! CHECKED IN C HEADER IS OUTDATED !!!!" && false)
+
+  clippy:
+    name: Lint with clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+              build-essential \
+              libelf-dev \
+              zlib1g-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo clippy --workspace --no-deps -- -A unknown_lints -D clippy::todo
