@@ -185,6 +185,8 @@ pub const PERF_MEM_LVLNUM_L1: u32 = 1;
 pub const PERF_MEM_LVLNUM_L2: u32 = 2;
 pub const PERF_MEM_LVLNUM_L3: u32 = 3;
 pub const PERF_MEM_LVLNUM_L4: u32 = 4;
+pub const PERF_MEM_LVLNUM_L2_MHB: u32 = 5;
+pub const PERF_MEM_LVLNUM_MSC: u32 = 6;
 pub const PERF_MEM_LVLNUM_UNC: u32 = 8;
 pub const PERF_MEM_LVLNUM_CXL: u32 = 9;
 pub const PERF_MEM_LVLNUM_IO: u32 = 10;
@@ -312,6 +314,7 @@ pub const BPF_PSEUDO_KFUNC_CALL: u32 = 2;
 pub const BPF_F_QUERY_EFFECTIVE: u32 = 1;
 pub const BPF_F_TEST_RUN_ON_CPU: u32 = 1;
 pub const BPF_F_TEST_XDP_LIVE_FRAMES: u32 = 2;
+pub const BPF_F_TEST_SKB_CHECKSUM_COMPLETE: u32 = 4;
 pub const BPF_BUILD_ID_SIZE: u32 = 20;
 pub const BPF_OBJ_NAME_LEN: u32 = 16;
 pub const XDP_PACKET_HEADROOM: u32 = 256;
@@ -327,6 +330,7 @@ pub const BTF_INT_CHAR: u32 = 2;
 pub const BTF_INT_BOOL: u32 = 4;
 pub const BTF_ELF_SEC: &[u8; 5] = b".BTF\0";
 pub const BTF_EXT_ELF_SEC: &[u8; 9] = b".BTF.ext\0";
+pub const BTF_BASE_ELF_SEC: &[u8; 10] = b".BTF.base\0";
 pub type size_t = ::std::os::raw::c_ulong;
 pub type __pid_t = ::std::os::raw::c_int;
 pub type __u8 = ::std::os::raw::c_uchar;
@@ -2223,7 +2227,8 @@ pub const BPF_CGROUP_UNIX_GETPEERNAME: bpf_attach_type = 52;
 pub const BPF_CGROUP_UNIX_GETSOCKNAME: bpf_attach_type = 53;
 pub const BPF_NETKIT_PRIMARY: bpf_attach_type = 54;
 pub const BPF_NETKIT_PEER: bpf_attach_type = 55;
-pub const __MAX_BPF_ATTACH_TYPE: bpf_attach_type = 56;
+pub const BPF_TRACE_KPROBE_SESSION: bpf_attach_type = 56;
+pub const __MAX_BPF_ATTACH_TYPE: bpf_attach_type = 57;
 pub type bpf_attach_type = ::std::os::raw::c_uint;
 pub const BPF_LINK_TYPE_UNSPEC: bpf_link_type = 0;
 pub const BPF_LINK_TYPE_RAW_TRACEPOINT: bpf_link_type = 1;
@@ -2239,7 +2244,8 @@ pub const BPF_LINK_TYPE_NETFILTER: bpf_link_type = 10;
 pub const BPF_LINK_TYPE_TCX: bpf_link_type = 11;
 pub const BPF_LINK_TYPE_UPROBE_MULTI: bpf_link_type = 12;
 pub const BPF_LINK_TYPE_NETKIT: bpf_link_type = 13;
-pub const __MAX_BPF_LINK_TYPE: bpf_link_type = 14;
+pub const BPF_LINK_TYPE_SOCKMAP: bpf_link_type = 14;
+pub const __MAX_BPF_LINK_TYPE: bpf_link_type = 15;
 pub type bpf_link_type = ::std::os::raw::c_uint;
 pub const BPF_PERF_EVENT_UNSPEC: bpf_perf_event_type = 0;
 pub const BPF_PERF_EVENT_UPROBE: bpf_perf_event_type = 1;
@@ -3173,69 +3179,67 @@ pub const BPF_F_PSEUDO_HDR: _bindgen_ty_68 = 16;
 pub const BPF_F_MARK_MANGLED_0: _bindgen_ty_68 = 32;
 pub const BPF_F_MARK_ENFORCE: _bindgen_ty_68 = 64;
 pub type _bindgen_ty_68 = ::std::os::raw::c_uint;
-pub const BPF_F_INGRESS: _bindgen_ty_69 = 1;
+pub const BPF_F_TUNINFO_IPV6: _bindgen_ty_69 = 1;
 pub type _bindgen_ty_69 = ::std::os::raw::c_uint;
-pub const BPF_F_TUNINFO_IPV6: _bindgen_ty_70 = 1;
+pub const BPF_F_SKIP_FIELD_MASK: _bindgen_ty_70 = 255;
+pub const BPF_F_USER_STACK: _bindgen_ty_70 = 256;
+pub const BPF_F_FAST_STACK_CMP: _bindgen_ty_70 = 512;
+pub const BPF_F_REUSE_STACKID: _bindgen_ty_70 = 1024;
+pub const BPF_F_USER_BUILD_ID: _bindgen_ty_70 = 2048;
 pub type _bindgen_ty_70 = ::std::os::raw::c_uint;
-pub const BPF_F_SKIP_FIELD_MASK: _bindgen_ty_71 = 255;
-pub const BPF_F_USER_STACK: _bindgen_ty_71 = 256;
-pub const BPF_F_FAST_STACK_CMP: _bindgen_ty_71 = 512;
-pub const BPF_F_REUSE_STACKID: _bindgen_ty_71 = 1024;
-pub const BPF_F_USER_BUILD_ID: _bindgen_ty_71 = 2048;
+pub const BPF_F_ZERO_CSUM_TX: _bindgen_ty_71 = 2;
+pub const BPF_F_DONT_FRAGMENT: _bindgen_ty_71 = 4;
+pub const BPF_F_SEQ_NUMBER: _bindgen_ty_71 = 8;
+pub const BPF_F_NO_TUNNEL_KEY: _bindgen_ty_71 = 16;
 pub type _bindgen_ty_71 = ::std::os::raw::c_uint;
-pub const BPF_F_ZERO_CSUM_TX: _bindgen_ty_72 = 2;
-pub const BPF_F_DONT_FRAGMENT: _bindgen_ty_72 = 4;
-pub const BPF_F_SEQ_NUMBER: _bindgen_ty_72 = 8;
-pub const BPF_F_NO_TUNNEL_KEY: _bindgen_ty_72 = 16;
+pub const BPF_F_TUNINFO_FLAGS: _bindgen_ty_72 = 16;
 pub type _bindgen_ty_72 = ::std::os::raw::c_uint;
-pub const BPF_F_TUNINFO_FLAGS: _bindgen_ty_73 = 16;
-pub type _bindgen_ty_73 = ::std::os::raw::c_uint;
-pub const BPF_F_INDEX_MASK: _bindgen_ty_74 = 4294967295;
-pub const BPF_F_CURRENT_CPU: _bindgen_ty_74 = 4294967295;
-pub const BPF_F_CTXLEN_MASK: _bindgen_ty_74 = 4503595332403200;
-pub type _bindgen_ty_74 = ::std::os::raw::c_ulong;
-pub const BPF_F_CURRENT_NETNS: _bindgen_ty_75 = -1;
-pub type _bindgen_ty_75 = ::std::os::raw::c_int;
-pub const BPF_CSUM_LEVEL_QUERY: _bindgen_ty_76 = 0;
-pub const BPF_CSUM_LEVEL_INC: _bindgen_ty_76 = 1;
-pub const BPF_CSUM_LEVEL_DEC: _bindgen_ty_76 = 2;
-pub const BPF_CSUM_LEVEL_RESET: _bindgen_ty_76 = 3;
+pub const BPF_F_INDEX_MASK: _bindgen_ty_73 = 4294967295;
+pub const BPF_F_CURRENT_CPU: _bindgen_ty_73 = 4294967295;
+pub const BPF_F_CTXLEN_MASK: _bindgen_ty_73 = 4503595332403200;
+pub type _bindgen_ty_73 = ::std::os::raw::c_ulong;
+pub const BPF_F_CURRENT_NETNS: _bindgen_ty_74 = -1;
+pub type _bindgen_ty_74 = ::std::os::raw::c_int;
+pub const BPF_CSUM_LEVEL_QUERY: _bindgen_ty_75 = 0;
+pub const BPF_CSUM_LEVEL_INC: _bindgen_ty_75 = 1;
+pub const BPF_CSUM_LEVEL_DEC: _bindgen_ty_75 = 2;
+pub const BPF_CSUM_LEVEL_RESET: _bindgen_ty_75 = 3;
+pub type _bindgen_ty_75 = ::std::os::raw::c_uint;
+pub const BPF_F_ADJ_ROOM_FIXED_GSO: _bindgen_ty_76 = 1;
+pub const BPF_F_ADJ_ROOM_ENCAP_L3_IPV4: _bindgen_ty_76 = 2;
+pub const BPF_F_ADJ_ROOM_ENCAP_L3_IPV6: _bindgen_ty_76 = 4;
+pub const BPF_F_ADJ_ROOM_ENCAP_L4_GRE: _bindgen_ty_76 = 8;
+pub const BPF_F_ADJ_ROOM_ENCAP_L4_UDP: _bindgen_ty_76 = 16;
+pub const BPF_F_ADJ_ROOM_NO_CSUM_RESET: _bindgen_ty_76 = 32;
+pub const BPF_F_ADJ_ROOM_ENCAP_L2_ETH: _bindgen_ty_76 = 64;
+pub const BPF_F_ADJ_ROOM_DECAP_L3_IPV4: _bindgen_ty_76 = 128;
+pub const BPF_F_ADJ_ROOM_DECAP_L3_IPV6: _bindgen_ty_76 = 256;
 pub type _bindgen_ty_76 = ::std::os::raw::c_uint;
-pub const BPF_F_ADJ_ROOM_FIXED_GSO: _bindgen_ty_77 = 1;
-pub const BPF_F_ADJ_ROOM_ENCAP_L3_IPV4: _bindgen_ty_77 = 2;
-pub const BPF_F_ADJ_ROOM_ENCAP_L3_IPV6: _bindgen_ty_77 = 4;
-pub const BPF_F_ADJ_ROOM_ENCAP_L4_GRE: _bindgen_ty_77 = 8;
-pub const BPF_F_ADJ_ROOM_ENCAP_L4_UDP: _bindgen_ty_77 = 16;
-pub const BPF_F_ADJ_ROOM_NO_CSUM_RESET: _bindgen_ty_77 = 32;
-pub const BPF_F_ADJ_ROOM_ENCAP_L2_ETH: _bindgen_ty_77 = 64;
-pub const BPF_F_ADJ_ROOM_DECAP_L3_IPV4: _bindgen_ty_77 = 128;
-pub const BPF_F_ADJ_ROOM_DECAP_L3_IPV6: _bindgen_ty_77 = 256;
+pub const BPF_ADJ_ROOM_ENCAP_L2_MASK: _bindgen_ty_77 = 255;
+pub const BPF_ADJ_ROOM_ENCAP_L2_SHIFT: _bindgen_ty_77 = 56;
 pub type _bindgen_ty_77 = ::std::os::raw::c_uint;
-pub const BPF_ADJ_ROOM_ENCAP_L2_MASK: _bindgen_ty_78 = 255;
-pub const BPF_ADJ_ROOM_ENCAP_L2_SHIFT: _bindgen_ty_78 = 56;
+pub const BPF_F_SYSCTL_BASE_NAME: _bindgen_ty_78 = 1;
 pub type _bindgen_ty_78 = ::std::os::raw::c_uint;
-pub const BPF_F_SYSCTL_BASE_NAME: _bindgen_ty_79 = 1;
+pub const BPF_LOCAL_STORAGE_GET_F_CREATE: _bindgen_ty_79 = 1;
+pub const BPF_SK_STORAGE_GET_F_CREATE: _bindgen_ty_79 = 1;
 pub type _bindgen_ty_79 = ::std::os::raw::c_uint;
-pub const BPF_LOCAL_STORAGE_GET_F_CREATE: _bindgen_ty_80 = 1;
-pub const BPF_SK_STORAGE_GET_F_CREATE: _bindgen_ty_80 = 1;
+pub const BPF_F_GET_BRANCH_RECORDS_SIZE: _bindgen_ty_80 = 1;
 pub type _bindgen_ty_80 = ::std::os::raw::c_uint;
-pub const BPF_F_GET_BRANCH_RECORDS_SIZE: _bindgen_ty_81 = 1;
+pub const BPF_RB_NO_WAKEUP: _bindgen_ty_81 = 1;
+pub const BPF_RB_FORCE_WAKEUP: _bindgen_ty_81 = 2;
 pub type _bindgen_ty_81 = ::std::os::raw::c_uint;
-pub const BPF_RB_NO_WAKEUP: _bindgen_ty_82 = 1;
-pub const BPF_RB_FORCE_WAKEUP: _bindgen_ty_82 = 2;
+pub const BPF_RB_AVAIL_DATA: _bindgen_ty_82 = 0;
+pub const BPF_RB_RING_SIZE: _bindgen_ty_82 = 1;
+pub const BPF_RB_CONS_POS: _bindgen_ty_82 = 2;
+pub const BPF_RB_PROD_POS: _bindgen_ty_82 = 3;
 pub type _bindgen_ty_82 = ::std::os::raw::c_uint;
-pub const BPF_RB_AVAIL_DATA: _bindgen_ty_83 = 0;
-pub const BPF_RB_RING_SIZE: _bindgen_ty_83 = 1;
-pub const BPF_RB_CONS_POS: _bindgen_ty_83 = 2;
-pub const BPF_RB_PROD_POS: _bindgen_ty_83 = 3;
+pub const BPF_RINGBUF_BUSY_BIT: _bindgen_ty_83 = 2147483648;
+pub const BPF_RINGBUF_DISCARD_BIT: _bindgen_ty_83 = 1073741824;
+pub const BPF_RINGBUF_HDR_SZ: _bindgen_ty_83 = 8;
 pub type _bindgen_ty_83 = ::std::os::raw::c_uint;
-pub const BPF_RINGBUF_BUSY_BIT: _bindgen_ty_84 = 2147483648;
-pub const BPF_RINGBUF_DISCARD_BIT: _bindgen_ty_84 = 1073741824;
-pub const BPF_RINGBUF_HDR_SZ: _bindgen_ty_84 = 8;
+pub const BPF_SK_LOOKUP_F_REPLACE: _bindgen_ty_84 = 1;
+pub const BPF_SK_LOOKUP_F_NO_REUSEPORT: _bindgen_ty_84 = 2;
 pub type _bindgen_ty_84 = ::std::os::raw::c_uint;
-pub const BPF_SK_LOOKUP_F_REPLACE: _bindgen_ty_85 = 1;
-pub const BPF_SK_LOOKUP_F_NO_REUSEPORT: _bindgen_ty_85 = 2;
-pub type _bindgen_ty_85 = ::std::os::raw::c_uint;
 pub const BPF_ADJ_ROOM_NET: bpf_adj_room_mode = 0;
 pub const BPF_ADJ_ROOM_MAC: bpf_adj_room_mode = 1;
 pub type bpf_adj_room_mode = ::std::os::raw::c_uint;
@@ -3246,14 +3250,18 @@ pub const BPF_LWT_ENCAP_SEG6: bpf_lwt_encap_mode = 0;
 pub const BPF_LWT_ENCAP_SEG6_INLINE: bpf_lwt_encap_mode = 1;
 pub const BPF_LWT_ENCAP_IP: bpf_lwt_encap_mode = 2;
 pub type bpf_lwt_encap_mode = ::std::os::raw::c_uint;
-pub const BPF_F_BPRM_SECUREEXEC: _bindgen_ty_86 = 1;
+pub const BPF_F_BPRM_SECUREEXEC: _bindgen_ty_85 = 1;
+pub type _bindgen_ty_85 = ::std::os::raw::c_uint;
+pub const BPF_F_INGRESS: _bindgen_ty_86 = 1;
+pub const BPF_F_BROADCAST: _bindgen_ty_86 = 8;
+pub const BPF_F_EXCLUDE_INGRESS: _bindgen_ty_86 = 16;
 pub type _bindgen_ty_86 = ::std::os::raw::c_uint;
-pub const BPF_F_BROADCAST: _bindgen_ty_87 = 8;
-pub const BPF_F_EXCLUDE_INGRESS: _bindgen_ty_87 = 16;
+pub const BPF_SKB_TSTAMP_UNSPEC: _bindgen_ty_87 = 0;
+pub const BPF_SKB_TSTAMP_DELIVERY_MONO: _bindgen_ty_87 = 1;
+pub const BPF_SKB_CLOCK_REALTIME: _bindgen_ty_87 = 0;
+pub const BPF_SKB_CLOCK_MONOTONIC: _bindgen_ty_87 = 1;
+pub const BPF_SKB_CLOCK_TAI: _bindgen_ty_87 = 2;
 pub type _bindgen_ty_87 = ::std::os::raw::c_uint;
-pub const BPF_SKB_TSTAMP_UNSPEC: _bindgen_ty_88 = 0;
-pub const BPF_SKB_TSTAMP_DELIVERY_MONO: _bindgen_ty_88 = 1;
-pub type _bindgen_ty_88 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_tunnel_key {
@@ -3662,6 +3670,7 @@ pub union bpf_link_info__bindgen_ty_1 {
     pub perf_event: bpf_link_info__bindgen_ty_1__bindgen_ty_11,
     pub tcx: bpf_link_info__bindgen_ty_1__bindgen_ty_12,
     pub netkit: bpf_link_info__bindgen_ty_1__bindgen_ty_13,
+    pub sockmap: bpf_link_info__bindgen_ty_1__bindgen_ty_14,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -3896,6 +3905,12 @@ pub struct bpf_link_info__bindgen_ty_1__bindgen_ty_13 {
     pub ifindex: __u32,
     pub attach_type: __u32,
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_link_info__bindgen_ty_1__bindgen_ty_14 {
+    pub map_id: __u32,
+    pub attach_type: __u32,
+}
 impl Default for bpf_link_info__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -4100,52 +4115,52 @@ impl Default for bpf_sock_ops {
         }
     }
 }
-pub const BPF_SOCK_OPS_RTO_CB_FLAG: _bindgen_ty_89 = 1;
-pub const BPF_SOCK_OPS_RETRANS_CB_FLAG: _bindgen_ty_89 = 2;
-pub const BPF_SOCK_OPS_STATE_CB_FLAG: _bindgen_ty_89 = 4;
-pub const BPF_SOCK_OPS_RTT_CB_FLAG: _bindgen_ty_89 = 8;
-pub const BPF_SOCK_OPS_PARSE_ALL_HDR_OPT_CB_FLAG: _bindgen_ty_89 = 16;
-pub const BPF_SOCK_OPS_PARSE_UNKNOWN_HDR_OPT_CB_FLAG: _bindgen_ty_89 = 32;
-pub const BPF_SOCK_OPS_WRITE_HDR_OPT_CB_FLAG: _bindgen_ty_89 = 64;
-pub const BPF_SOCK_OPS_ALL_CB_FLAGS: _bindgen_ty_89 = 127;
+pub const BPF_SOCK_OPS_RTO_CB_FLAG: _bindgen_ty_88 = 1;
+pub const BPF_SOCK_OPS_RETRANS_CB_FLAG: _bindgen_ty_88 = 2;
+pub const BPF_SOCK_OPS_STATE_CB_FLAG: _bindgen_ty_88 = 4;
+pub const BPF_SOCK_OPS_RTT_CB_FLAG: _bindgen_ty_88 = 8;
+pub const BPF_SOCK_OPS_PARSE_ALL_HDR_OPT_CB_FLAG: _bindgen_ty_88 = 16;
+pub const BPF_SOCK_OPS_PARSE_UNKNOWN_HDR_OPT_CB_FLAG: _bindgen_ty_88 = 32;
+pub const BPF_SOCK_OPS_WRITE_HDR_OPT_CB_FLAG: _bindgen_ty_88 = 64;
+pub const BPF_SOCK_OPS_ALL_CB_FLAGS: _bindgen_ty_88 = 127;
+pub type _bindgen_ty_88 = ::std::os::raw::c_uint;
+pub const BPF_SOCK_OPS_VOID: _bindgen_ty_89 = 0;
+pub const BPF_SOCK_OPS_TIMEOUT_INIT: _bindgen_ty_89 = 1;
+pub const BPF_SOCK_OPS_RWND_INIT: _bindgen_ty_89 = 2;
+pub const BPF_SOCK_OPS_TCP_CONNECT_CB: _bindgen_ty_89 = 3;
+pub const BPF_SOCK_OPS_ACTIVE_ESTABLISHED_CB: _bindgen_ty_89 = 4;
+pub const BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB: _bindgen_ty_89 = 5;
+pub const BPF_SOCK_OPS_NEEDS_ECN: _bindgen_ty_89 = 6;
+pub const BPF_SOCK_OPS_BASE_RTT: _bindgen_ty_89 = 7;
+pub const BPF_SOCK_OPS_RTO_CB: _bindgen_ty_89 = 8;
+pub const BPF_SOCK_OPS_RETRANS_CB: _bindgen_ty_89 = 9;
+pub const BPF_SOCK_OPS_STATE_CB: _bindgen_ty_89 = 10;
+pub const BPF_SOCK_OPS_TCP_LISTEN_CB: _bindgen_ty_89 = 11;
+pub const BPF_SOCK_OPS_RTT_CB: _bindgen_ty_89 = 12;
+pub const BPF_SOCK_OPS_PARSE_HDR_OPT_CB: _bindgen_ty_89 = 13;
+pub const BPF_SOCK_OPS_HDR_OPT_LEN_CB: _bindgen_ty_89 = 14;
+pub const BPF_SOCK_OPS_WRITE_HDR_OPT_CB: _bindgen_ty_89 = 15;
 pub type _bindgen_ty_89 = ::std::os::raw::c_uint;
-pub const BPF_SOCK_OPS_VOID: _bindgen_ty_90 = 0;
-pub const BPF_SOCK_OPS_TIMEOUT_INIT: _bindgen_ty_90 = 1;
-pub const BPF_SOCK_OPS_RWND_INIT: _bindgen_ty_90 = 2;
-pub const BPF_SOCK_OPS_TCP_CONNECT_CB: _bindgen_ty_90 = 3;
-pub const BPF_SOCK_OPS_ACTIVE_ESTABLISHED_CB: _bindgen_ty_90 = 4;
-pub const BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB: _bindgen_ty_90 = 5;
-pub const BPF_SOCK_OPS_NEEDS_ECN: _bindgen_ty_90 = 6;
-pub const BPF_SOCK_OPS_BASE_RTT: _bindgen_ty_90 = 7;
-pub const BPF_SOCK_OPS_RTO_CB: _bindgen_ty_90 = 8;
-pub const BPF_SOCK_OPS_RETRANS_CB: _bindgen_ty_90 = 9;
-pub const BPF_SOCK_OPS_STATE_CB: _bindgen_ty_90 = 10;
-pub const BPF_SOCK_OPS_TCP_LISTEN_CB: _bindgen_ty_90 = 11;
-pub const BPF_SOCK_OPS_RTT_CB: _bindgen_ty_90 = 12;
-pub const BPF_SOCK_OPS_PARSE_HDR_OPT_CB: _bindgen_ty_90 = 13;
-pub const BPF_SOCK_OPS_HDR_OPT_LEN_CB: _bindgen_ty_90 = 14;
-pub const BPF_SOCK_OPS_WRITE_HDR_OPT_CB: _bindgen_ty_90 = 15;
+pub const BPF_TCP_ESTABLISHED: _bindgen_ty_90 = 1;
+pub const BPF_TCP_SYN_SENT: _bindgen_ty_90 = 2;
+pub const BPF_TCP_SYN_RECV: _bindgen_ty_90 = 3;
+pub const BPF_TCP_FIN_WAIT1: _bindgen_ty_90 = 4;
+pub const BPF_TCP_FIN_WAIT2: _bindgen_ty_90 = 5;
+pub const BPF_TCP_TIME_WAIT: _bindgen_ty_90 = 6;
+pub const BPF_TCP_CLOSE: _bindgen_ty_90 = 7;
+pub const BPF_TCP_CLOSE_WAIT: _bindgen_ty_90 = 8;
+pub const BPF_TCP_LAST_ACK: _bindgen_ty_90 = 9;
+pub const BPF_TCP_LISTEN: _bindgen_ty_90 = 10;
+pub const BPF_TCP_CLOSING: _bindgen_ty_90 = 11;
+pub const BPF_TCP_NEW_SYN_RECV: _bindgen_ty_90 = 12;
+pub const BPF_TCP_BOUND_INACTIVE: _bindgen_ty_90 = 13;
+pub const BPF_TCP_MAX_STATES: _bindgen_ty_90 = 14;
 pub type _bindgen_ty_90 = ::std::os::raw::c_uint;
-pub const BPF_TCP_ESTABLISHED: _bindgen_ty_91 = 1;
-pub const BPF_TCP_SYN_SENT: _bindgen_ty_91 = 2;
-pub const BPF_TCP_SYN_RECV: _bindgen_ty_91 = 3;
-pub const BPF_TCP_FIN_WAIT1: _bindgen_ty_91 = 4;
-pub const BPF_TCP_FIN_WAIT2: _bindgen_ty_91 = 5;
-pub const BPF_TCP_TIME_WAIT: _bindgen_ty_91 = 6;
-pub const BPF_TCP_CLOSE: _bindgen_ty_91 = 7;
-pub const BPF_TCP_CLOSE_WAIT: _bindgen_ty_91 = 8;
-pub const BPF_TCP_LAST_ACK: _bindgen_ty_91 = 9;
-pub const BPF_TCP_LISTEN: _bindgen_ty_91 = 10;
-pub const BPF_TCP_CLOSING: _bindgen_ty_91 = 11;
-pub const BPF_TCP_NEW_SYN_RECV: _bindgen_ty_91 = 12;
-pub const BPF_TCP_BOUND_INACTIVE: _bindgen_ty_91 = 13;
-pub const BPF_TCP_MAX_STATES: _bindgen_ty_91 = 14;
-pub type _bindgen_ty_91 = ::std::os::raw::c_uint;
-pub const BPF_LOAD_HDR_OPT_TCP_SYN: _bindgen_ty_93 = 1;
+pub const BPF_LOAD_HDR_OPT_TCP_SYN: _bindgen_ty_92 = 1;
+pub type _bindgen_ty_92 = ::std::os::raw::c_uint;
+pub const BPF_WRITE_HDR_TCP_CURRENT_MSS: _bindgen_ty_93 = 1;
+pub const BPF_WRITE_HDR_TCP_SYNACK_COOKIE: _bindgen_ty_93 = 2;
 pub type _bindgen_ty_93 = ::std::os::raw::c_uint;
-pub const BPF_WRITE_HDR_TCP_CURRENT_MSS: _bindgen_ty_94 = 1;
-pub const BPF_WRITE_HDR_TCP_SYNACK_COOKIE: _bindgen_ty_94 = 2;
-pub type _bindgen_ty_94 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_perf_event_value {
@@ -4153,13 +4168,13 @@ pub struct bpf_perf_event_value {
     pub enabled: __u64,
     pub running: __u64,
 }
-pub const BPF_DEVCG_ACC_MKNOD: _bindgen_ty_95 = 1;
-pub const BPF_DEVCG_ACC_READ: _bindgen_ty_95 = 2;
-pub const BPF_DEVCG_ACC_WRITE: _bindgen_ty_95 = 4;
+pub const BPF_DEVCG_ACC_MKNOD: _bindgen_ty_94 = 1;
+pub const BPF_DEVCG_ACC_READ: _bindgen_ty_94 = 2;
+pub const BPF_DEVCG_ACC_WRITE: _bindgen_ty_94 = 4;
+pub type _bindgen_ty_94 = ::std::os::raw::c_uint;
+pub const BPF_DEVCG_DEV_BLOCK: _bindgen_ty_95 = 1;
+pub const BPF_DEVCG_DEV_CHAR: _bindgen_ty_95 = 2;
 pub type _bindgen_ty_95 = ::std::os::raw::c_uint;
-pub const BPF_DEVCG_DEV_BLOCK: _bindgen_ty_96 = 1;
-pub const BPF_DEVCG_DEV_CHAR: _bindgen_ty_96 = 2;
-pub type _bindgen_ty_96 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_cgroup_dev_ctx {
@@ -4172,23 +4187,24 @@ pub struct bpf_cgroup_dev_ctx {
 pub struct bpf_raw_tracepoint_args {
     pub args: __IncompleteArrayField<__u64>,
 }
-pub const BPF_FIB_LOOKUP_DIRECT: _bindgen_ty_97 = 1;
-pub const BPF_FIB_LOOKUP_OUTPUT: _bindgen_ty_97 = 2;
-pub const BPF_FIB_LOOKUP_SKIP_NEIGH: _bindgen_ty_97 = 4;
-pub const BPF_FIB_LOOKUP_TBID: _bindgen_ty_97 = 8;
-pub const BPF_FIB_LOOKUP_SRC: _bindgen_ty_97 = 16;
+pub const BPF_FIB_LOOKUP_DIRECT: _bindgen_ty_96 = 1;
+pub const BPF_FIB_LOOKUP_OUTPUT: _bindgen_ty_96 = 2;
+pub const BPF_FIB_LOOKUP_SKIP_NEIGH: _bindgen_ty_96 = 4;
+pub const BPF_FIB_LOOKUP_TBID: _bindgen_ty_96 = 8;
+pub const BPF_FIB_LOOKUP_SRC: _bindgen_ty_96 = 16;
+pub const BPF_FIB_LOOKUP_MARK: _bindgen_ty_96 = 32;
+pub type _bindgen_ty_96 = ::std::os::raw::c_uint;
+pub const BPF_FIB_LKUP_RET_SUCCESS: _bindgen_ty_97 = 0;
+pub const BPF_FIB_LKUP_RET_BLACKHOLE: _bindgen_ty_97 = 1;
+pub const BPF_FIB_LKUP_RET_UNREACHABLE: _bindgen_ty_97 = 2;
+pub const BPF_FIB_LKUP_RET_PROHIBIT: _bindgen_ty_97 = 3;
+pub const BPF_FIB_LKUP_RET_NOT_FWDED: _bindgen_ty_97 = 4;
+pub const BPF_FIB_LKUP_RET_FWD_DISABLED: _bindgen_ty_97 = 5;
+pub const BPF_FIB_LKUP_RET_UNSUPP_LWT: _bindgen_ty_97 = 6;
+pub const BPF_FIB_LKUP_RET_NO_NEIGH: _bindgen_ty_97 = 7;
+pub const BPF_FIB_LKUP_RET_FRAG_NEEDED: _bindgen_ty_97 = 8;
+pub const BPF_FIB_LKUP_RET_NO_SRC_ADDR: _bindgen_ty_97 = 9;
 pub type _bindgen_ty_97 = ::std::os::raw::c_uint;
-pub const BPF_FIB_LKUP_RET_SUCCESS: _bindgen_ty_98 = 0;
-pub const BPF_FIB_LKUP_RET_BLACKHOLE: _bindgen_ty_98 = 1;
-pub const BPF_FIB_LKUP_RET_UNREACHABLE: _bindgen_ty_98 = 2;
-pub const BPF_FIB_LKUP_RET_PROHIBIT: _bindgen_ty_98 = 3;
-pub const BPF_FIB_LKUP_RET_NOT_FWDED: _bindgen_ty_98 = 4;
-pub const BPF_FIB_LKUP_RET_FWD_DISABLED: _bindgen_ty_98 = 5;
-pub const BPF_FIB_LKUP_RET_UNSUPP_LWT: _bindgen_ty_98 = 6;
-pub const BPF_FIB_LKUP_RET_NO_NEIGH: _bindgen_ty_98 = 7;
-pub const BPF_FIB_LKUP_RET_FRAG_NEEDED: _bindgen_ty_98 = 8;
-pub const BPF_FIB_LKUP_RET_NO_SRC_ADDR: _bindgen_ty_98 = 9;
-pub type _bindgen_ty_98 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_fib_lookup {
@@ -4202,10 +4218,9 @@ pub struct bpf_fib_lookup {
     pub __bindgen_anon_3: bpf_fib_lookup__bindgen_ty_3,
     pub __bindgen_anon_4: bpf_fib_lookup__bindgen_ty_4,
     pub __bindgen_anon_5: bpf_fib_lookup__bindgen_ty_5,
-    pub smac: [__u8; 6usize],
-    pub dmac: [__u8; 6usize],
+    pub __bindgen_anon_6: bpf_fib_lookup__bindgen_ty_6,
 }
-#[repr(C)]
+#[repr(C, packed(2))]
 #[derive(Copy, Clone)]
 pub union bpf_fib_lookup__bindgen_ty_1 {
     pub tot_len: __u16,
@@ -4287,6 +4302,32 @@ impl Default for bpf_fib_lookup__bindgen_ty_5 {
         }
     }
 }
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union bpf_fib_lookup__bindgen_ty_6 {
+    pub __bindgen_anon_1: bpf_fib_lookup__bindgen_ty_6__bindgen_ty_1,
+    pub __bindgen_anon_2: bpf_fib_lookup__bindgen_ty_6__bindgen_ty_2,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_fib_lookup__bindgen_ty_6__bindgen_ty_1 {
+    pub mark: __u32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_fib_lookup__bindgen_ty_6__bindgen_ty_2 {
+    pub smac: [__u8; 6usize],
+    pub dmac: [__u8; 6usize],
+}
+impl Default for bpf_fib_lookup__bindgen_ty_6 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl Default for bpf_fib_lookup {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -4339,10 +4380,10 @@ pub const BPF_FD_TYPE_KRETPROBE: bpf_task_fd_type = 3;
 pub const BPF_FD_TYPE_UPROBE: bpf_task_fd_type = 4;
 pub const BPF_FD_TYPE_URETPROBE: bpf_task_fd_type = 5;
 pub type bpf_task_fd_type = ::std::os::raw::c_uint;
-pub const BPF_FLOW_DISSECTOR_F_PARSE_1ST_FRAG: _bindgen_ty_99 = 1;
-pub const BPF_FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL: _bindgen_ty_99 = 2;
-pub const BPF_FLOW_DISSECTOR_F_STOP_AT_ENCAP: _bindgen_ty_99 = 4;
-pub type _bindgen_ty_99 = ::std::os::raw::c_uint;
+pub const BPF_FLOW_DISSECTOR_F_PARSE_1ST_FRAG: _bindgen_ty_98 = 1;
+pub const BPF_FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL: _bindgen_ty_98 = 2;
+pub const BPF_FLOW_DISSECTOR_F_STOP_AT_ENCAP: _bindgen_ty_98 = 4;
+pub type _bindgen_ty_98 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct bpf_flow_keys {
@@ -4418,6 +4459,11 @@ pub struct bpf_spin_lock {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_timer {
+    pub __opaque: [__u64; 2usize],
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct bpf_wq {
     pub __opaque: [__u64; 2usize],
 }
 #[repr(C)]
@@ -4638,11 +4684,11 @@ impl Default for btf_ptr {
         }
     }
 }
-pub const BTF_F_COMPACT: _bindgen_ty_100 = 1;
-pub const BTF_F_NONAME: _bindgen_ty_100 = 2;
-pub const BTF_F_PTR_RAW: _bindgen_ty_100 = 4;
-pub const BTF_F_ZERO: _bindgen_ty_100 = 8;
-pub type _bindgen_ty_100 = ::std::os::raw::c_uint;
+pub const BTF_F_COMPACT: _bindgen_ty_99 = 1;
+pub const BTF_F_NONAME: _bindgen_ty_99 = 2;
+pub const BTF_F_PTR_RAW: _bindgen_ty_99 = 4;
+pub const BTF_F_ZERO: _bindgen_ty_99 = 8;
+pub type _bindgen_ty_99 = ::std::os::raw::c_uint;
 pub const BPF_CORE_FIELD_BYTE_OFFSET: bpf_core_relo_kind = 0;
 pub const BPF_CORE_FIELD_BYTE_SIZE: bpf_core_relo_kind = 1;
 pub const BPF_CORE_FIELD_EXISTS: bpf_core_relo_kind = 2;
@@ -4674,14 +4720,16 @@ impl Default for bpf_core_relo {
         }
     }
 }
-pub const BPF_F_TIMER_ABS: _bindgen_ty_101 = 1;
-pub const BPF_F_TIMER_CPU_PIN: _bindgen_ty_101 = 2;
-pub type _bindgen_ty_101 = ::std::os::raw::c_uint;
+pub const BPF_F_TIMER_ABS: _bindgen_ty_100 = 1;
+pub const BPF_F_TIMER_CPU_PIN: _bindgen_ty_100 = 2;
+pub type _bindgen_ty_100 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct bpf_iter_num {
     pub __opaque: [__u64; 1usize],
 }
+pub const BPF_F_PAD_ZEROS: bpf_kfunc_flags = 1;
+pub type bpf_kfunc_flags = ::std::os::raw::c_uint;
 pub const LIBBPF_STRICT_ALL: libbpf_strict_mode = 4294967295;
 pub const LIBBPF_STRICT_NONE: libbpf_strict_mode = 0;
 pub const LIBBPF_STRICT_CLEAN_PTRS: libbpf_strict_mode = 1;
@@ -5531,29 +5579,29 @@ impl Default for btf_type {
         }
     }
 }
-pub const BTF_KIND_UNKN: _bindgen_ty_102 = 0;
-pub const BTF_KIND_INT: _bindgen_ty_102 = 1;
-pub const BTF_KIND_PTR: _bindgen_ty_102 = 2;
-pub const BTF_KIND_ARRAY: _bindgen_ty_102 = 3;
-pub const BTF_KIND_STRUCT: _bindgen_ty_102 = 4;
-pub const BTF_KIND_UNION: _bindgen_ty_102 = 5;
-pub const BTF_KIND_ENUM: _bindgen_ty_102 = 6;
-pub const BTF_KIND_FWD: _bindgen_ty_102 = 7;
-pub const BTF_KIND_TYPEDEF: _bindgen_ty_102 = 8;
-pub const BTF_KIND_VOLATILE: _bindgen_ty_102 = 9;
-pub const BTF_KIND_CONST: _bindgen_ty_102 = 10;
-pub const BTF_KIND_RESTRICT: _bindgen_ty_102 = 11;
-pub const BTF_KIND_FUNC: _bindgen_ty_102 = 12;
-pub const BTF_KIND_FUNC_PROTO: _bindgen_ty_102 = 13;
-pub const BTF_KIND_VAR: _bindgen_ty_102 = 14;
-pub const BTF_KIND_DATASEC: _bindgen_ty_102 = 15;
-pub const BTF_KIND_FLOAT: _bindgen_ty_102 = 16;
-pub const BTF_KIND_DECL_TAG: _bindgen_ty_102 = 17;
-pub const BTF_KIND_TYPE_TAG: _bindgen_ty_102 = 18;
-pub const BTF_KIND_ENUM64: _bindgen_ty_102 = 19;
-pub const NR_BTF_KINDS: _bindgen_ty_102 = 20;
-pub const BTF_KIND_MAX: _bindgen_ty_102 = 19;
-pub type _bindgen_ty_102 = ::std::os::raw::c_uint;
+pub const BTF_KIND_UNKN: _bindgen_ty_101 = 0;
+pub const BTF_KIND_INT: _bindgen_ty_101 = 1;
+pub const BTF_KIND_PTR: _bindgen_ty_101 = 2;
+pub const BTF_KIND_ARRAY: _bindgen_ty_101 = 3;
+pub const BTF_KIND_STRUCT: _bindgen_ty_101 = 4;
+pub const BTF_KIND_UNION: _bindgen_ty_101 = 5;
+pub const BTF_KIND_ENUM: _bindgen_ty_101 = 6;
+pub const BTF_KIND_FWD: _bindgen_ty_101 = 7;
+pub const BTF_KIND_TYPEDEF: _bindgen_ty_101 = 8;
+pub const BTF_KIND_VOLATILE: _bindgen_ty_101 = 9;
+pub const BTF_KIND_CONST: _bindgen_ty_101 = 10;
+pub const BTF_KIND_RESTRICT: _bindgen_ty_101 = 11;
+pub const BTF_KIND_FUNC: _bindgen_ty_101 = 12;
+pub const BTF_KIND_FUNC_PROTO: _bindgen_ty_101 = 13;
+pub const BTF_KIND_VAR: _bindgen_ty_101 = 14;
+pub const BTF_KIND_DATASEC: _bindgen_ty_101 = 15;
+pub const BTF_KIND_FLOAT: _bindgen_ty_101 = 16;
+pub const BTF_KIND_DECL_TAG: _bindgen_ty_101 = 17;
+pub const BTF_KIND_TYPE_TAG: _bindgen_ty_101 = 18;
+pub const BTF_KIND_ENUM64: _bindgen_ty_101 = 19;
+pub const NR_BTF_KINDS: _bindgen_ty_101 = 20;
+pub const BTF_KIND_MAX: _bindgen_ty_101 = 19;
+pub type _bindgen_ty_101 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct btf_enum {
@@ -5580,10 +5628,10 @@ pub struct btf_param {
     pub name_off: __u32,
     pub type_: __u32,
 }
-pub const BTF_VAR_STATIC: _bindgen_ty_103 = 0;
-pub const BTF_VAR_GLOBAL_ALLOCATED: _bindgen_ty_103 = 1;
-pub const BTF_VAR_GLOBAL_EXTERN: _bindgen_ty_103 = 2;
-pub type _bindgen_ty_103 = ::std::os::raw::c_uint;
+pub const BTF_VAR_STATIC: _bindgen_ty_102 = 0;
+pub const BTF_VAR_GLOBAL_ALLOCATED: _bindgen_ty_102 = 1;
+pub const BTF_VAR_GLOBAL_EXTERN: _bindgen_ty_102 = 2;
+pub type _bindgen_ty_102 = ::std::os::raw::c_uint;
 pub const BTF_FUNC_STATIC: btf_func_linkage = 0;
 pub const BTF_FUNC_GLOBAL: btf_func_linkage = 1;
 pub const BTF_FUNC_EXTERN: btf_func_linkage = 2;
@@ -5638,6 +5686,13 @@ extern "C" {
 }
 extern "C" {
     pub fn btf__new_empty_split(base_btf: *mut btf) -> *mut btf;
+}
+extern "C" {
+    pub fn btf__distill_base(
+        src_btf: *const btf,
+        new_base_btf: *mut *mut btf,
+        new_split_btf: *mut *mut btf,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn btf__parse(path: *const ::std::os::raw::c_char, btf_ext: *mut *mut btf_ext) -> *mut btf;
@@ -5750,6 +5805,15 @@ extern "C" {
         btf_ext: *const btf_ext,
         size: *mut __u32,
     ) -> *const ::std::os::raw::c_void;
+}
+extern "C" {
+    pub fn btf_ext__endianness(btf_ext: *const btf_ext) -> btf_endianness;
+}
+extern "C" {
+    pub fn btf_ext__set_endianness(
+        btf_ext: *mut btf_ext,
+        endian: btf_endianness,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn btf__find_str(btf: *mut btf, s: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
@@ -5960,6 +6024,9 @@ impl Default for btf_dedup_opts {
 }
 extern "C" {
     pub fn btf__dedup(btf: *mut btf, opts: *const btf_dedup_opts) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn btf__relocate(btf: *mut btf, base_btf: *const btf) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6202,6 +6269,9 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn bpf_object__token_fd(obj: *const bpf_object) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn bpf_object__btf(obj: *const bpf_object) -> *mut btf;
 }
 extern "C" {
@@ -6408,7 +6478,8 @@ pub struct bpf_kprobe_multi_opts {
     pub cookies: *const __u64,
     pub cnt: size_t,
     pub retprobe: bool,
-    pub __bindgen_padding_0: [u8; 7usize],
+    pub session: bool,
+    pub __bindgen_padding_0: [u8; 6usize],
 }
 impl Default for bpf_kprobe_multi_opts {
     fn default() -> Self {
@@ -6597,6 +6668,12 @@ extern "C" {
     ) -> *mut bpf_link;
 }
 extern "C" {
+    pub fn bpf_program__attach_sockmap(
+        prog: *const bpf_program,
+        map_fd: ::std::os::raw::c_int,
+    ) -> *mut bpf_link;
+}
+extern "C" {
     pub fn bpf_program__attach_xdp(
         prog: *const bpf_program,
         ifindex: ::std::os::raw::c_int,
@@ -6763,6 +6840,12 @@ extern "C" {
 }
 extern "C" {
     pub fn bpf_map__autocreate(map: *const bpf_map) -> bool;
+}
+extern "C" {
+    pub fn bpf_map__set_autoattach(map: *mut bpf_map, autoattach: bool) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn bpf_map__autoattach(map: *const bpf_map) -> bool;
 }
 extern "C" {
     pub fn bpf_map__fd(map: *const bpf_map) -> ::std::os::raw::c_int;
@@ -7091,6 +7174,9 @@ extern "C" {
     pub fn ring_buffer__consume(rb: *mut ring_buffer) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn ring_buffer__consume_n(rb: *mut ring_buffer, n: size_t) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn ring_buffer__epoll_fd(rb: *const ring_buffer) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -7294,6 +7380,7 @@ pub struct bpf_map_skeleton {
     pub name: *const ::std::os::raw::c_char,
     pub map: *mut *mut bpf_map,
     pub mmaped: *mut *mut ::std::os::raw::c_void,
+    pub link: *mut *mut bpf_link,
 }
 impl Default for bpf_map_skeleton {
     fn default() -> Self {
