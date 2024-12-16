@@ -7109,7 +7109,6 @@ unsafe extern "C" {
         opts: *mut bpf_token_create_opts,
     ) -> ::std::os::raw::c_int;
 }
-pub type __gnuc_va_list = __builtin_va_list;
 pub type va_list = __builtin_va_list;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -7688,13 +7687,6 @@ unsafe extern "C" {
         opts: *const btf_dump_type_data_opts,
     ) -> ::std::os::raw::c_int;
 }
-unsafe extern "C" {
-    pub fn vdprintf(
-        __fd: ::std::os::raw::c_int,
-        __fmt: *const ::std::os::raw::c_char,
-        __arg: *mut __va_list_tag,
-    ) -> ::std::os::raw::c_int;
-}
 pub type pid_t = __pid_t;
 unsafe extern "C" {
     pub fn libbpf_major_version() -> __u32;
@@ -7728,16 +7720,6 @@ pub const LIBBPF_WARN: libbpf_print_level = 0;
 pub const LIBBPF_INFO: libbpf_print_level = 1;
 pub const LIBBPF_DEBUG: libbpf_print_level = 2;
 pub type libbpf_print_level = ::std::os::raw::c_uint;
-pub type libbpf_print_fn_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        level: libbpf_print_level,
-        arg1: *const ::std::os::raw::c_char,
-        ap: *mut __va_list_tag,
-    ) -> ::std::os::raw::c_int,
->;
-unsafe extern "C" {
-    pub fn libbpf_set_print(fn_: libbpf_print_fn_t) -> libbpf_print_fn_t;
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct bpf_object_open_opts {

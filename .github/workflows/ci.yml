@@ -132,6 +132,61 @@ jobs:
       - run: cargo test ${{ matrix.args }}
         shell: alpine.sh {0}
 
+  test-android:
+    name: Test on Android
+    strategy:
+      matrix:
+        include:
+          - rust-target: aarch64-linux-android
+            os-arch: amd64
+
+    runs-on: ubuntu-20.04
+    
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.rust-target }}
+      CARGO_TERM_VERBOSE: 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+              gawk \
+              flex \
+              bison \
+              clang \
+              automake \
+              autopoint \
+              gcc-multilib \
+              build-essential
+ 
+      - name: Install Rust stable for ${{ matrix.rust-target }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-target }}
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+          # local-cache: true
+          # add-to-path: false
+      
+      - name: Cargo test no run
+        run: cargo test --no-run
+        if: matrix.rust-target == 'aarch64-linux-android'
+        env:
+          RUSTFLAGS: -C linker=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang
+          AR_aarch64_linux_android: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          CC_aarch64_linux_android: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang
+          CXX_aarch64_linux_android: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang++
+
   test-libbpf-rs:
     # check that libbpf-rs, one of the main consumers of the library, works with
     # this version of libbpf-sys
