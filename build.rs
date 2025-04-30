@@ -4,6 +4,8 @@ use std::env;
 use std::ffi;
 use std::fs;
 use std::fs::read_dir;
+use std::fs::File;
+use std::io;
 use std::path;
 use std::path::Path;
 use std::process;
@@ -208,12 +210,31 @@ fn main() {
     }
 }
 
+fn open_lockable(path: &Path) -> io::Result<File> {
+    let result = File::options()
+        .read(true)
+        // Open with write permissions because flock(2) may require them
+        // on some platforms.
+        .write(true)
+        .open(path);
+    match result {
+        Ok(file) => Ok(file),
+        Err(err) if err.kind() == io::ErrorKind::PermissionDenied => {
+            // On a read-only file system we may not be able to open
+            // with write permissions. So just open for reading and hope
+            // for the best.
+            File::open(path)
+        },
+        e @ Err(..) => e,
+    }
+}
+
 fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     let src_dir = src_dir.join("zlib");
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
-    let file = std::fs::File::open(src_dir.join("README")).unwrap();
+    let file = open_lockable(&src_dir.join("README")).unwrap();
     let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
     let status = process::Command::new("./configure")
@@ -254,7 +275,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     // lock README such that if two crates are trying to compile
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
-    let file = std::fs::File::open(src_dir.join("elfutils/README")).unwrap();
+    let file = open_lockable(&src_dir.join("elfutils/README")).unwrap();
     let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
 
     let flags = compiler
