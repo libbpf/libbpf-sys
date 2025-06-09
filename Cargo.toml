@@ -27,7 +27,7 @@ github = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
-bindgen = { version = "^0.71.1", optional = true }
+bindgen = { version = "^0.72.0", optional = true }
 cc = "^1.1.6"
 pkg-config = "^0.3.30"
 nix = { version = "^0.30.0", default-features = false, features = ["fs"] }
