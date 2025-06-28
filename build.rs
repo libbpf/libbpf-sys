@@ -58,6 +58,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         &path::PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR should always be set"));
 
     bindgen::Builder::default()
+        .rust_target(env!("CARGO_PKG_RUST_VERSION").parse().expect("valid"))
         .derive_default(true)
         .explicit_padding(true)
         .default_enum_style(bindgen::EnumVariation::Consts)
