@@ -14,7 +14,7 @@ authors = [
 ]
 license = "BSD-2-Clause"
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.82" # first stable release to support "unsafe extern"
 build = "build.rs"
 links = "bpf"
 exclude = [
