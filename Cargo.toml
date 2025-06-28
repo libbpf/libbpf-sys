@@ -13,7 +13,7 @@ authors = [
 	"Daniel Xu <dxu@dxuuu.xyz>",
 ]
 license = "BSD-2-Clause"
-edition = "2024"
+edition = "2021"
 rust-version = "1.82"
 build = "build.rs"
 links = "bpf"
