@@ -169,8 +169,8 @@ jobs:
           cargo update
           cargo build
 
-  c-header:
-    name: Check generated C header
+  rust-bindings:
+    name: Check generated Rust bindings
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -180,9 +180,9 @@ jobs:
         run: sudo apt-get install libelf-dev
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check --features bindgen-source
-      - name: Check that C header is up-to-date
+      - name: Check that generated Rust bindings are up-to-date
         run: git diff --exit-code ||
-               (echo "!!!! CHECKED IN C HEADER IS OUTDATED !!!!" && false)
+               (echo "!!!! CHECKED IN BINDINGS ARE OUTDATED !!!!" && false)
 
   clippy:
     name: Lint with clippy
