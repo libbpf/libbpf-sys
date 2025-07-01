@@ -5,7 +5,7 @@ DOCKER="docker"
 set -eu -o pipefail
 
 ${DOCKER} build --platform linux/amd64 -t libbpf-sys-builder - <<'EOF'
-FROM ubuntu:jammy AS libbpf-sys-builder
+FROM ubuntu:latest AS libbpf-sys-builder
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
@@ -26,7 +26,7 @@ RUN \
 
 ENTRYPOINT \
 	source $HOME/.cargo/env; \
-	cargo build --features bindgen-source --release --verbose;
+	cargo check --features bindgen-source --verbose;
 EOF
 
 ${DOCKER} run --platform linux/amd64 --rm -v "$(pwd):/usr/local/src/libbpf-sys" libbpf-sys-builder
