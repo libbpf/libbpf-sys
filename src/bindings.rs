@@ -8760,6 +8760,27 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn ring_buffer__ring(rb: *mut ring_buffer, idx: ::std::os::raw::c_uint) -> *mut ring;
 }
+unsafe extern "C" {
+    pub fn ring__consumer_pos(r: *const ring) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+    pub fn ring__producer_pos(r: *const ring) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+    pub fn ring__avail_data_size(r: *const ring) -> size_t;
+}
+unsafe extern "C" {
+    pub fn ring__size(r: *const ring) -> size_t;
+}
+unsafe extern "C" {
+    pub fn ring__map_fd(r: *const ring) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    pub fn ring__consume(r: *mut ring) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    pub fn ring__consume_n(r: *mut ring, n: size_t) -> ::std::os::raw::c_int;
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct user_ring_buffer_opts {
