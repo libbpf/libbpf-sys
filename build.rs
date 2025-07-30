@@ -71,6 +71,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         .allowlist_function("btf_.+")
         .allowlist_function("libbpf_.+")
         .allowlist_function("perf_.+")
+        .allowlist_function("ring__.+")
         .allowlist_function("ring_buffer_.+")
         .allowlist_function("user_ring_buffer_.+")
         .allowlist_function("vdprintf")
