@@ -59,6 +59,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
 
     bindgen::Builder::default()
         .rust_target(env!("CARGO_PKG_RUST_VERSION").parse().expect("valid"))
+        .disable_header_comment()
         .derive_default(true)
         .explicit_padding(true)
         .default_enum_style(bindgen::EnumVariation::Consts)
