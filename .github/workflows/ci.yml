@@ -48,7 +48,7 @@ jobs:
       RUSTFLAGS: -C linker=/usr/bin/${{ matrix.os-target }}-gcc
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -106,7 +106,7 @@ jobs:
       CARGO_TERM_VERBOSE: 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -141,7 +141,7 @@ jobs:
       CARGO_TERM_VERBOSE: 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -173,7 +173,7 @@ jobs:
     name: Check generated Rust bindings
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install system dependencies
@@ -189,7 +189,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
