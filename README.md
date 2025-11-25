@@ -41,6 +41,7 @@ $ cargo build
 
 - `LIBBPF_SYS_EXTRA_CFLAGS` can be used to pass extra cflags when vendoring libbpf, libz or libelf.
 - `LIBBPF_SYS_LIBRARY_PATH`: colon separated paths for the linker to find native libs.
+- `LIBBPF_SYS_LIBRARY_PATH_<TARGET_TRIPLE>`: similar to `LIBBPF_SYS_LIBRARY_PATH`, but used to set per-target library path, to help cross-compilation environments. If `LIBBPF_SYS_LIBRARY_PATH_<TARGET_TRIPLE>` and `LIBBPF_SYS_LIBRARY_PATH` are defined, the paths from both will be used, and the "target" paths will have precedence.
 
 ### Distribution
 

@@ -203,11 +203,30 @@ fn main() {
     );
     println!("cargo:include={}/include", out_dir.to_string_lossy());
 
-    println!("cargo:rerun-if-env-changed=LIBBPF_SYS_LIBRARY_PATH");
-    if let Ok(lib_path) = env::var("LIBBPF_SYS_LIBRARY_PATH") {
-        for path in lib_path.split(':') {
-            if !path.is_empty() {
-                println!("cargo:rustc-link-search=native={}", path);
+    let global_lib_path = "LIBBPF_SYS_LIBRARY_PATH";
+    let target_lib_path = format!("{}_{}", global_lib_path, env::var("TARGET").unwrap());
+    let target_lib_path_underscored = format!(
+        "{}_{}",
+        global_lib_path,
+        env::var("TARGET").unwrap().replace('-', "_")
+    );
+
+    println!("cargo:rerun-if-env-changed={}", global_lib_path);
+    println!("cargo:rerun-if-env-changed={}", target_lib_path);
+    println!("cargo:rerun-if-env-changed={}", target_lib_path_underscored);
+
+    let lib_paths = vec![
+        env::var(target_lib_path),
+        env::var(target_lib_path_underscored),
+        env::var(global_lib_path),
+    ];
+
+    for lib_path in lib_paths {
+        if let Ok(lib_path) = lib_path {
+            for path in lib_path.split(':') {
+                if !path.is_empty() {
+                    println!("cargo:rustc-link-search=native={}", path);
+                }
             }
         }
     }
