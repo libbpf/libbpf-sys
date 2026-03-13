@@ -1,6 +1,6 @@
 [package]
 name = "libbpf-sys"
-version = "1.6.3+v1.6.3"
+version = "1.6.4+v1.6.3"
 description = "Rust bindings to libbpf from the Linux kernel"
 readme = "README.md"
 repository = "https://github.com/libbpf/libbpf-sys"
@@ -8,9 +8,9 @@ homepage = "https://github.com/libbpf/libbpf-sys"
 documentation = "https://docs.rs/libbpf-sys"
 keywords = ["bpf", "ebpf", "xdp"]
 authors = [
-	"Alex Forster <alex@alexforster.com>",
-	"Dan Siemon <dan@coverfire.com>",
-	"Daniel Xu <dxu@dxuuu.xyz>",
+    "Alex Forster <alex@alexforster.com>",
+    "Dan Siemon <dan@coverfire.com>",
+    "Daniel Xu <dxu@dxuuu.xyz>",
 ]
 license = "BSD-2-Clause"
 edition = "2021"
@@ -18,9 +18,9 @@ rust-version = "1.82" # first stable release to support "unsafe extern"
 build = "build.rs"
 links = "bpf"
 exclude = [
-	"/elfutils/tests/*.bz2",
-	"/libbpf/assets",
-	"/zlib/contrib",
+    "/elfutils/tests/*.bz2",
+    "/libbpf/assets",
+    "/zlib/contrib",
 ]
 
 [badges]
@@ -28,10 +28,10 @@ github = { repository = "libbpf/libbpf-sys" }
 maintenance = { status = "passively-maintained" }
 
 [build-dependencies]
-bindgen = { version = "^0.72", optional = true }
-cc = "^1.1.6"
-pkg-config = "^0.3.30"
-nix = { version = "^0.31.0", default-features = false, features = ["fs"] }
+bindgen = { version = "^0.72.0", optional = true }
+cc = "^1.2.27"
+pkg-config = "^0.3.32"
+nix = { version = "^0.31.2", default-features = false, features = ["fs"] }
 
 [lib]
 crate-type = ["lib", "staticlib"]
