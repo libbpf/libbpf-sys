@@ -57,6 +57,9 @@ fn generate_bindings(src_dir: path::PathBuf) {
     let out_dir =
         &path::PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR should always be set"));
 
+    let out_file = out_dir.join("bindings.rs");
+    println!("cargo:rerun-if-changed={}", out_file.display());
+
     bindgen::Builder::default()
         .rust_target(env!("CARGO_PKG_RUST_VERSION").parse().expect("valid"))
         .disable_header_comment()
@@ -93,7 +96,7 @@ fn generate_bindings(src_dir: path::PathBuf) {
         ))
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file(out_dir.join("bindings.rs"))
+        .write_to_file(out_file)
         .expect("Couldn't write bindings");
 }
 
