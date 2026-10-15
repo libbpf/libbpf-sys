@@ -46,6 +46,9 @@ fn generate_bindings(src_dir: path::PathBuf) {
             "BTF_KIND_DECL_TAG",
             "BTF_KIND_TYPE_TAG",
             "BTF_KIND_ENUM64",
+            "BTF_KIND_LOC_PARAM",
+            "BTF_KIND_LOC_PROTO",
+            "BTF_KIND_LOCSEC",
         ]
         .into_iter()
         .collect(),
