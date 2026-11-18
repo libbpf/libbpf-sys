@@ -427,6 +427,7 @@ fn make_libbpf(
 
     let status = process::Command::new("make")
         .arg("clean")
+        .env("OBJDIR", &obj_dir)
         .current_dir(&src_dir)
         .status()
         .expect("could not execute make");
