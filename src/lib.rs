@@ -25,7 +25,7 @@ macro_rules! header {
 ///
 /// Tuple format is: (header filename, header contents)
 #[cfg(feature = "vendored-libbpf")]
-pub const API_HEADERS: [(&str, &str); 10] = [
+pub const API_HEADERS: &[(&str, &str)] = &[
     header!("bpf.h"),
     header!("libbpf.h"),
     header!("btf.h"),
