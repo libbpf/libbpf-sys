@@ -31,7 +31,6 @@ maintenance = { status = "passively-maintained" }
 bindgen = { version = "0.73", optional = true }
 cc = "^1.2.27"
 pkg-config = "^0.3.32"
-nix = { version = "^0.31.2", default-features = false, features = ["fs"] }
 
 [lib]
 crate-type = ["lib", "staticlib"]
