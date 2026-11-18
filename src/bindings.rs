@@ -47,11 +47,7 @@ where
             index % 8
         };
         let mask = 1 << bit_index;
-        if val {
-            byte | mask
-        } else {
-            byte & !mask
-        }
+        if val { byte | mask } else { byte & !mask }
     }
     #[inline]
     pub fn set_bit(&mut self, index: usize, val: bool) {
@@ -8633,7 +8629,7 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn btf__add_ptr(btf: *mut btf, ref_type_id: ::std::os::raw::c_int)
-        -> ::std::os::raw::c_int;
+    -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
     pub fn btf__add_array(
@@ -9782,7 +9778,7 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn bpf_map__reuse_fd(map: *mut bpf_map, fd: ::std::os::raw::c_int)
-        -> ::std::os::raw::c_int;
+    -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
     pub fn bpf_map__name(map: *const bpf_map) -> *const ::std::os::raw::c_char;
@@ -9798,7 +9794,7 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn bpf_map__set_max_entries(map: *mut bpf_map, max_entries: __u32)
-        -> ::std::os::raw::c_int;
+    -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
     pub fn bpf_map__map_flags(map: *const bpf_map) -> __u32;
@@ -10048,7 +10044,7 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn bpf_tc_attach(hook: *const bpf_tc_hook, opts: *mut bpf_tc_opts)
-        -> ::std::os::raw::c_int;
+    -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
     pub fn bpf_tc_detach(
@@ -10278,7 +10274,7 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn perf_buffer__buffer_fd(pb: *const perf_buffer, buf_idx: size_t)
-        -> ::std::os::raw::c_int;
+    -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
     pub fn perf_buffer__buffer(
