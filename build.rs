@@ -10,8 +10,6 @@ use std::path;
 use std::path::Path;
 use std::process;
 
-use nix::fcntl;
-
 fn emit_rerun_directives_for_contents(dir: &Path) {
     for result in read_dir(dir).unwrap() {
         let file = result.unwrap();
@@ -267,7 +265,7 @@ fn make_zlib(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path) {
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
     let file = open_lockable(&src_dir.join("README")).unwrap();
-    let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
+    file.lock().unwrap();
 
     let status = process::Command::new("./configure")
         .arg("--static")
@@ -308,7 +306,7 @@ fn make_elfutils(compiler: &cc::Tool, src_dir: &path::Path, out_dir: &path::Path
     // this at the same time (eg libbpf-rs libbpf-cargo)
     // they wont trample each other
     let file = open_lockable(&src_dir.join("elfutils/README")).unwrap();
-    let _lock = fcntl::Flock::lock(file, fcntl::FlockArg::LockExclusive).unwrap();
+    file.lock().unwrap();
 
     let flags = compiler
         .cflags_env()
