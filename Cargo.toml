@@ -38,10 +38,6 @@ crate-type = ["lib", "staticlib"]
 
 [features]
 default = ["vendored-libbpf"]
-# Don't vendor anything.
-# This feature is for backward-compatibility only.
-# Set default-features = false instead.
-novendor = []
 # Meta-feature to use vendored versions of all dependencies.
 vendored = ["vendored-libbpf", "vendored-libelf", "vendored-zlib"]
 # Use vendored `libbpf`. Implies linking it statically.
