@@ -139,15 +139,6 @@ fn main() {
     println!("Using feature static-libelf={}", static_libelf);
     println!("Using feature static-zlib={}", static_zlib);
 
-    if cfg!(feature = "novendor") {
-        println!("cargo:warning=the `novendor` feature of `libbpf-sys` is deprecated; build without features instead");
-        println!(
-            "cargo:rustc-link-lib={}bpf",
-            if static_libbpf { "static=" } else { "" }
-        );
-        return;
-    }
-
     let out_dir = path::PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     // check for all necessary compilation tools
