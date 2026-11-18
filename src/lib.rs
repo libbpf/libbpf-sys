@@ -35,5 +35,7 @@ pub const API_HEADERS: &[(&str, &str)] = &[
     header!("bpf_endian.h"),
     header!("bpf_core_read.h"),
     header!("libbpf_common.h"),
+    header!("libbpf_legacy.h"),
+    header!("libbpf_version.h"),
     header!("usdt.bpf.h"),
 ];
