@@ -133,8 +133,6 @@ jobs:
         shell: alpine.sh {0}
 
   test-libbpf-rs:
-    # TODO: Re-enable once libbpf-rs supports size_t as usize.
-    if: ${{ false }}
     # check that libbpf-rs, one of the main consumers of the library, works with
     # this version of libbpf-sys
     name: Test libbpf-rs integration
